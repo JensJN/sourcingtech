@@ -1,7 +1,11 @@
 import streamlit as st
 import litellm
 import instructor
+import logging
 from typing import List, Dict
+
+# Configure logging
+logging.basicConfig(filename='llm_qa.log', level=logging.INFO, format='%(asctime)s - %(message)s')
 
 ## DEBUG only
 #litellm.set_verbose=True
@@ -54,7 +58,14 @@ def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", respon
     }
     params.update(kwargs)  # Add any additional kwargs
 
+    # Log the parameters
+    logging.info(f"Parameters: {params}")
+
     resp = client.chat.completions.create(**params)
+
+    # Log the response
+    logging.info(f"Response: {resp}")
+
     if response_model is None:
         return resp['choices'][0]['message']['content']
     else:
