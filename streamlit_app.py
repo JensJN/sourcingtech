@@ -212,7 +212,12 @@ for i, step in enumerate(WORKFLOW_STEPS):
                 result = run_step(step, st.session_state.company_url)
                 st.session_state.step_results[i] = result
             else:
-                st.error("Please enter a company URL.")
+                st.session_state.show_error = True
+    
+    if st.session_state.get('show_error', False) and not st.session_state.company_url:
+        st.error("Please enter a company URL.")
+        st.session_state.show_error = False
+    
     st.text_area("", value=st.session_state.step_results[i], height=150, key=f"step_{i}")
 
 # Display final summary
