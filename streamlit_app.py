@@ -61,7 +61,7 @@ for key in REQUIRED_ENV:
 try:
     tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
 except KeyError:
-    st.error("Tavily API key not found. Some features may not work.")
+    st.error("Error initialising Tavily client. Missing API key?")
     tavily_client = None
 instructorlitellm_client = instructor.from_litellm(litellm.completion)
 
