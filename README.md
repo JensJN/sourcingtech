@@ -4,7 +4,7 @@
 ```
 sh ./aider.sh
 ```
-# Then for testing within aider (logs to file):
+# Then for testing within aider (logs to file, hot-reloads):
 ```
 /run streamlit run streamlit_app.py > streamlit_app.log 2>&1 & 
 ```

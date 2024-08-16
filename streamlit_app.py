@@ -10,7 +10,9 @@ import instructor
 # or GOOGLE_APPLICATION_CREDENTIALS, VERTEXAI_PROJECT, VERTEXAI_LOCATION
 
 ## Model name and settings
-MODEL_NAME = "deepseek/deepseek-chat"
+#MODEL_NAME = "deepseek/deepseek-chat"
+MODEL_NAME="vertex_ai/claude-3-5-sonnet@20240620"
+
 client = instructor.from_litellm(litellm.completion)
 def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, **kwargs) -> str:
     """
@@ -44,6 +46,7 @@ def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", respon
 
 st.write('Sourcing tech test JN')
 
-# Prompt the model and display the result
-model_response = prompt_model("which model are you? are you active? one-line answer max.")
-st.write(f"Model response: {model_response}")
+## Print which model we're using
+model_response = prompt_model("which model provider and version are you? one-line answer max.")
+st.write(f"Using model: {model_response}")
+
