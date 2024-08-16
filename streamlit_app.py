@@ -84,7 +84,7 @@ def run_step(step: Dict[str, str], company_url: str) -> str:
     """
     search_query = step["search_query"].format(company_url=company_url)
     search_results = f"Simulated search results for: {search_query}"  # Replace with actual search function
-    prompt = f"{step['prompt_to_analyse']}\n Base this on the following search results:\n{search_results}"
+    prompt = f"{step['prompt_to_analyse']}\n Base this on the following search results:\n {search_results}"
     return prompt_model(prompt)
 
 # Define the steps for the workflow
