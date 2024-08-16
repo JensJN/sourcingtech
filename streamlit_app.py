@@ -14,7 +14,7 @@ from env_setup import setup_environment
 async def main():
 
     # Set DEBUG_MODE
-    DEBUG_MODE = False
+    DEBUG_MODE = True
 
     st.set_page_config(page_title="JN test - Company Analysis Workflow")
     st.title("JN test - Company Analysis Workflow")
