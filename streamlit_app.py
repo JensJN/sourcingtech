@@ -48,7 +48,6 @@ else:
 # Remove any existing handlers from the root logger
 for handler in logging.root.handlers[:]:
     logging.root.removeHandler(handler)
-
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', handlers=[])
 logger = logging.getLogger()
 # File handler
@@ -132,7 +131,7 @@ def run_step(step: Dict[str, str], company_url: str) -> str:
         str: The result of the step.
     """
     search_query = step["search_query"].format(company_url=company_url)
-    search_results = tavily_client.get_search_context(query=search_query, search_depth="advanced", max_tokens=8000, max_results=5)
+    search_results = tavily_client.get_search_context(query=search_query, search_depth="basic", max_tokens=8000, max_results=5)
     
     # Log the search results
     logging.info(f"Search Query: {search_query}")
