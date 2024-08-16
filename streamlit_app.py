@@ -12,7 +12,7 @@ import instructor
 ## Model name and settings
 MODEL_NAME = "deepseek/deepseek-chat"
 client = instructor.from_litellm(litellm.completion)
-def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", **kwargs) -> str:
+def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, **kwargs) -> str:
     """
     Calls the LLM API with the given prompt and returns the raw response as a string.
 
@@ -20,6 +20,7 @@ def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", **kwar
         prompt (str): The input prompt for the API.
         max_tokens (int, optional): The maximum number of tokens in the response. Defaults to 1024.
         role (str, optional): The role of the message sender. Defaults to "user".
+        response_model (optional): The response model to use. Defaults to None.
 
     Returns:
         str: The raw response from the LLM API.
@@ -33,9 +34,13 @@ def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", **kwar
                 "content": prompt,
             }
         ],
+        response_model=response_model,
         **kwargs
     )
-    return resp['choices'][0]['message']['content']
+    if response_model is None:
+        return resp['choices'][0]['message']['content']
+    else:
+        return resp.content
 
 st.write('Sourcing tech test JN')
 
