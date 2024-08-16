@@ -144,6 +144,9 @@ def run_step(step: Dict[str, str], company_url: str) -> str:
         include_domains = [domain.format(company_url=company_url) for domain in step["include_domains"]]
         search_params["include_domains"] = include_domains
     
+    
+    return ""
+
     search_results = tavily_client.search(**search_params)
     
     # Log the search results
