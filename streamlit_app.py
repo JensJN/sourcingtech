@@ -38,4 +38,3 @@ def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", **kwar
     return resp['choices'][0]['message']['content']
 
 st.write('Sourcing tech test JN')
-
