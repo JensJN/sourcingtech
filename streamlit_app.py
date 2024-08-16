@@ -2,6 +2,7 @@ import streamlit as st
 import litellm
 import instructor
 import logging
+import os
 from typing import List, Dict
 from tavily import TavilyClient
 
@@ -11,10 +12,19 @@ logging.basicConfig(filename='llm_qa.log', level=logging.INFO, format='%(asctime
 ## DEBUG only
 #litellm.set_verbose=True
 
-## Requires env vars to be set for API keys in: 
-# DEEPSEEK_API_KEY or ANTHROPIC_API_KEY or GOOGLE_APPLICATION_CREDENTIALS, VERTEXAI_PROJECT, VERTEXAI_LOCATION
-# TAVILY_API_KEY
-tavily_client = TavilyClient(api_key=st.secrets["TAVILY_API_KEY"])
+# Function to get a value from environment variable or Streamlit secrets
+def get_secret(key: str) -> str:
+    return os.environ.get(key) or st.secrets.get(key)
+
+# Set up API keys and credentials
+os.environ["TAVILY_API_KEY"] = get_secret("TAVILY_API_KEY")
+os.environ["DEEPSEEK_API_KEY"] = get_secret("DEEPSEEK_API_KEY")
+os.environ["ANTHROPIC_API_KEY"] = get_secret("ANTHROPIC_API_KEY")
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = get_secret("GOOGLE_APPLICATION_CREDENTIALS")
+os.environ["VERTEXAI_PROJECT"] = get_secret("VERTEXAI_PROJECT")
+os.environ["VERTEXAI_LOCATION"] = get_secret("VERTEXAI_LOCATION")
+
+tavily_client = TavilyClient()
 
 ## Model selection and settings; pick sonnet or deepseek at the top
 MODEL = "sonnet"
