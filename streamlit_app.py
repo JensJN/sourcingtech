@@ -68,3 +68,5 @@ if col1.button("Identify Model"):
     model_response = prompt_model("Which model are you? Answer in format: Vendor; Model")
     col2.write(f"Using model: {model_response}")
 
+st.write("This is some test text printed below the button.")
+
