@@ -105,9 +105,12 @@ def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", respon
     input_tokens = resp.usage.prompt_tokens
     output_tokens = resp.usage.completion_tokens
     total_tokens = resp.usage.total_tokens
-    cost = completion_cost(completion_response=resp)
-    
-    logging.info(f"Token usage - Estimated cost: ${cost:.6f}, Input: {input_tokens}, Output: {output_tokens}, Total: {total_tokens}")
+    try:
+        cost = completion_cost(completion_response=resp)
+        logging.info(f"Token usage - Estimated cost: ${cost:.6f}, Input: {input_tokens}, Output: {output_tokens}, Total: {total_tokens}")
+    except Exception as e:
+        logging.error(f"Error calculating completion cost: {str(e)}")
+        logging.info(f"Token usage - Input: {input_tokens}, Output: {output_tokens}, Total: {total_tokens}")
     
     # Log the response
     logging.info(f"Response: {resp}")
