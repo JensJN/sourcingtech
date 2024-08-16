@@ -6,25 +6,6 @@ from typing import List, Dict
 ## DEBUG only
 #litellm.set_verbose=True
 
-# Define the steps for the workflow
-WORKFLOW_STEPS = [
-    {
-        "step_name": "Company Overview",
-        "search_query": "company overview {company_url}",
-        "prompt_to_analyse": "Provide a brief overview of the company based on the search results."
-    },
-    {
-        "step_name": "Products and Services",
-        "search_query": "products and services offered by {company_url}",
-        "prompt_to_analyse": "List the main products and services offered by the company."
-    },
-    {
-        "step_name": "Company Culture",
-        "search_query": "company culture at {company_url}",
-        "prompt_to_analyse": "Describe the company culture and work environment based on the search results."
-    }
-]
-
 ## Requires env vars to be set for API keys in: 
 # DEEPSEEK_API_KEY or ANTHROPIC_API_KEY
 # or GOOGLE_APPLICATION_CREDENTIALS, VERTEXAI_PROJECT, VERTEXAI_LOCATION
@@ -95,8 +76,20 @@ def run_step(step: Dict[str, str], company_url: str) -> str:
     prompt = f"{step['prompt_to_analyse']}\n\nSearch results:\n{search_results}"
     return prompt_model(prompt)
 
-st.set_page_config(page_title="Company Analysis Workflow")
-st.title("Company Analysis Workflow")
+# Define the steps for the workflow
+WORKFLOW_STEPS = [
+    {"step_name": "Company Overview",
+     "search_query": "company overview {company_url}",
+     "prompt_to_analyse": "Provide a brief overview of the company based on the search results."
+    },
+    {"step_name": "Products and Services",
+     "search_query": "products and services offered by {company_url}",
+     "prompt_to_analyse": "List the main products and services offered by the company."
+    }
+]
+
+st.set_page_config(page_title="JN test - Company Analysis Workflow")
+st.title("JN test - Company Analysis Workflow")
 
 ## Button to identify the model
 col1, col2 = st.columns([1, 3])
