@@ -9,7 +9,7 @@ from tavily import TavilyClient
 st.set_page_config(page_title="JN test - Company Analysis Workflow")
 st.title("JN test - Company Analysis Workflow")
 
-logging.debug("Logging system initialized")
+logging.info("Logging system initialized")
 
 # Define the steps for the workflow
 WORKFLOW_STEPS = [
@@ -47,7 +47,7 @@ else:
 
 # Configure logging
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler('llm_qa.log'),
