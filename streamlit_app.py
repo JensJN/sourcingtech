@@ -20,9 +20,7 @@ DEFAULT_FREQUENCY_PENALTY = 0.0
 DEFAULT_PRESENCE_PENALTY = 0.0
 
 client = instructor.from_litellm(litellm.completion)
-def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, 
-                 temperature: float = None, top_p: float = None, 
-                 frequency_penalty: float = None, presence_penalty: float = None, **kwargs) -> str:
+def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, **kwargs) -> str:
     """
     Calls the LLM API with the given prompt and returns the raw response as a string.
 
@@ -41,10 +39,10 @@ def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", respon
         "max_tokens": max_tokens,
         "messages": [{"role": role, "content": prompt}],
         "response_model": response_model,
-        "temperature": temperature if temperature is not None else DEFAULT_TEMPERATURE,
-        "top_p": top_p if top_p is not None else DEFAULT_TOP_P,
-        "frequency_penalty": frequency_penalty if frequency_penalty is not None else DEFAULT_FREQUENCY_PENALTY,
-        "presence_penalty": presence_penalty if presence_penalty is not None else DEFAULT_PRESENCE_PENALTY,
+        "temperature": DEFAULT_TEMPERATURE,
+        "top_p": DEFAULT_TOP_P,
+        "frequency_penalty": DEFAULT_FREQUENCY_PENALTY,
+        "presence_penalty": DEFAULT_PRESENCE_PENALTY,
     }
     params.update(kwargs)  # Add any additional kwargs
 
