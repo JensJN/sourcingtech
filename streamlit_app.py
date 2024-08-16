@@ -192,12 +192,10 @@ if col1.button("Analyze Company", use_container_width=True):
         st.error("Please enter a company URL.")
 
 if col2.button("Summarize", use_container_width=True):
-    if st.session_state.company_url and any(st.session_state.step_results):
+    if any(st.session_state.step_results):
         # Final summary step
         summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
         st.session_state.final_summary = prompt_model(summary_prompt)
-    elif not st.session_state.company_url:
-        st.error("Please enter a company URL.")
     else:
         st.error("Please analyze the company first.")
 
