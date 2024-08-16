@@ -54,7 +54,7 @@ for key in REQUIRED_ENV:
         try:
             value = st.secrets.get(key)
         except FileNotFoundError:
-            st.error(f"Secret '{key}' not found. Please set it as an environment variable or in the secrets.toml file.")
+            st.error(f"Secret '{key}' not found. Please set it as an environment variable, in a secrets.toml file or in the Streamlit console.")
             continue
     os.environ[key] = value
 
