@@ -47,22 +47,16 @@ else:
 logging.basicConfig(filename='llm_qa.log', level=logging.INFO, format='%(asctime)s - %(message)s')
 #litellm.set_verbose=True ## for DEBUG only
 
-# Function to get a value from environment variable or Streamlit secrets
-def get_secret(key: str) -> str:
+# Set up API keys and credentials
+for key in REQUIRED_ENV:
     value = os.environ.get(key)
     if value is None:
         try:
             value = st.secrets.get(key)
         except FileNotFoundError:
             st.error(f"Secret '{key}' not found. Please set it as an environment variable or in the secrets.toml file.")
-            return None
-    return value
-
-# Set up API keys and credentials
-for key in REQUIRED_ENV:
-    value = get_secret(key)
-    if value:
-        os.environ[key] = value
+            continue
+    os.environ[key] = value
 
 tavily_api_key = os.environ.get("TAVILY_API_KEY")
 if tavily_api_key:
