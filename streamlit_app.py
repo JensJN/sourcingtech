@@ -182,39 +182,38 @@ st.session_state.company_url = st.text_input("Enter company URL:", value=st.sess
 
 col1, col2 = st.columns(2)
 
-if col1.button("Analyze Company", use_container_width=True):
+col1.button("Analyze Company", on_click=analyze_company_callback, use_container_width=True)
+col2.button("Summarize", on_click=summarize_callback, use_container_width=True)
+
+def analyze_company_callback():
     if st.session_state.company_url:
-        # Run each step of the workflow
         for i, step in enumerate(WORKFLOW_STEPS):
             result = run_step(step, st.session_state.company_url)
             st.session_state.step_results[i] = result
     else:
         st.error("Please enter a company URL.")
 
-if col2.button("Summarize", use_container_width=True):
+def summarize_callback():
     if any(st.session_state.step_results):
-        # Final summary step
         summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
         st.session_state.final_summary = prompt_model(summary_prompt)
     else:
         st.error("Please analyze the company first.")
+
+def run_step_callback(step_index):
+    if st.session_state.company_url:
+        result = run_step(WORKFLOW_STEPS[step_index], st.session_state.company_url)
+        st.session_state.step_results[step_index] = result
+    else:
+        st.error("Please enter a company URL.")
 
 # Display step results
 for i, step in enumerate(WORKFLOW_STEPS):
     col1, col2 = st.columns([3, 1])
     with col1:
         st.subheader(step["step_name"])
-    show_error = False
     with col2:
-        if st.button("Run Step", key=f"run_step_{i}", use_container_width=True):
-            if st.session_state.company_url:
-                result = run_step(step, st.session_state.company_url)
-                st.session_state.step_results[i] = result
-            else:
-                show_error = True
-    
-    if show_error:
-        st.error("Please enter a company URL.")
+        st.button("Run Step", key=f"run_step_{i}", on_click=run_step_callback, args=(i,), use_container_width=True)
     
     st.text_area("", value=st.session_state.step_results[i], height=150, key=f"step_{i}")
 
