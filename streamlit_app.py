@@ -164,20 +164,29 @@ if col1.button("Test Model"):
 # Input for company URL
 company_url = st.text_input("Enter company URL:")
 
+# Create empty placeholders for each step
+step_placeholders = []
+for step in WORKFLOW_STEPS:
+    st.subheader(step["step_name"])
+    placeholder = st.empty()
+    step_placeholders.append(placeholder)
+
+# Create a placeholder for the final summary
+st.subheader("Final Summary")
+final_summary_placeholder = st.empty()
+
 if st.button("Analyze Company"):
     if company_url:
         # Run each step of the workflow
         step_results = []
-        for step in WORKFLOW_STEPS:
-            st.subheader(step["step_name"])
+        for i, step in enumerate(WORKFLOW_STEPS):
             result = run_step(step, company_url)
-            st.write(result)
+            step_placeholders[i].write(result)
             step_results.append(result)
 
         # Final summary step
-        st.subheader("Final Summary")
         summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(step_results) + SUMMARY_END_OF_PROMPT
         final_summary = prompt_model(summary_prompt)
-        st.write(final_summary)
+        final_summary_placeholder.write(final_summary)
     else:
         st.error("Please enter a company URL.")
