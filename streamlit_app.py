@@ -10,15 +10,18 @@ from tavily import TavilyClient
 st.set_page_config(page_title="JN test - Company Analysis Workflow")
 st.title("JN test - Company Analysis Workflow")
 
-# Define the steps for the workflow
+## Define the steps for the workflow
+# Mandatory: first 3, rest optional
 WORKFLOW_STEPS = [
     {"step_name": "Company Overview",
      "search_query": "company overview {company_url}",
-     "prompt_to_analyse": "Provide a brief overview of the company."
+     "prompt_to_analyse": "Provide a brief overview of the company.",
+     "include_domains:": ["{company_url}", "wikipedia.org"]
     },
     {"step_name": "Products and Services",
      "search_query": "products and services offered by {company_url}",
-     "prompt_to_analyse": "List the main products and services offered by the company."
+     "prompt_to_analyse": "List the main products and services offered by the company.",
+     "include_domains:": ["{company_url}"]
     }
 ]
 
