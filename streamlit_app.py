@@ -167,7 +167,7 @@ def run_step(step: Dict[str, str], company_url: str) -> str:
 
 ## Button to identify the model
 col1, col2 = st.columns([1, 3])
-if col1.button("Test Model"):
+if col1.button("Test Model", use_container_width=True):
     st.session_state.model_response = prompt_model("Which model are you? Answer in format: Using model: Vendor, Model")
 
 col2.write(f"{st.session_state.model_response}")
@@ -177,7 +177,7 @@ st.session_state.company_url = st.text_input("Enter company URL:", value=st.sess
 
 col1, col2, col3 = st.columns(3)
 
-if col2.button("Analyze Company"):
+if col2.button("Analyze Company", use_container_width=True):
     if st.session_state.company_url:
         # Run each step of the workflow
         for i, step in enumerate(WORKFLOW_STEPS):
@@ -186,7 +186,7 @@ if col2.button("Analyze Company"):
     else:
         st.error("Please enter a company URL.")
 
-if col3.button("Summarize"):
+if col3.button("Summarize", use_container_width=True):
     if st.session_state.company_url and any(st.session_state.step_results):
         # Final summary step
         summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
