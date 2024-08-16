@@ -3,7 +3,6 @@ import litellm
 from litellm import completion_cost
 import instructor
 import logging
-from logging import StreamHandler, FileHandler
 import os
 from typing import List, Dict
 from tavily import TavilyClient
@@ -29,23 +28,6 @@ async def main():
         st.session_state.final_summary = ""
     if 'model_response' not in st.session_state:
         st.session_state.model_response = ""
-
-    ## Configure logging
-    # Remove any existing handlers from the root logger
-    for handler in logging.root.handlers[:]:
-        logging.root.removeHandler(handler)
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', handlers=[])
-    logger = logging.getLogger()
-    # File handler
-    file_handler = logging.FileHandler('llm_qa.log')
-    file_handler.setLevel(logging.INFO)
-    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
-    logger.addHandler(file_handler)
-    # Stream handler for console output
-    stream_handler = StreamHandler()
-    stream_handler.setLevel(logging.INFO)
-    stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
-    logger.addHandler(stream_handler)
 
     if DEBUG_MODE:
         os.environ['LITELLM_LOG'] = 'DEBUG'
