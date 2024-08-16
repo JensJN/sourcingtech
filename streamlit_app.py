@@ -175,9 +175,9 @@ col2.write(f"{st.session_state.model_response}")
 # Input for company URL
 st.session_state.company_url = st.text_input("Enter company URL:", value=st.session_state.company_url)
 
-col1, col2, col3 = st.columns(3)
+col1, col2 = st.columns(2)
 
-if col2.button("Analyze Company", use_container_width=True):
+if col1.button("Analyze Company", use_container_width=True):
     if st.session_state.company_url:
         # Run each step of the workflow
         for i, step in enumerate(WORKFLOW_STEPS):
@@ -186,7 +186,7 @@ if col2.button("Analyze Company", use_container_width=True):
     else:
         st.error("Please enter a company URL.")
 
-if col3.button("Summarize", use_container_width=True):
+if col2.button("Summarize", use_container_width=True):
     if st.session_state.company_url and any(st.session_state.step_results):
         # Final summary step
         summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
