@@ -3,6 +3,7 @@ import litellm
 import instructor
 import logging
 from typing import List, Dict
+from tavily import TavilyClient
 
 # Configure logging
 logging.basicConfig(filename='llm_qa.log', level=logging.INFO, format='%(asctime)s - %(message)s')
@@ -13,6 +14,7 @@ logging.basicConfig(filename='llm_qa.log', level=logging.INFO, format='%(asctime
 ## Requires env vars to be set for API keys in: 
 # DEEPSEEK_API_KEY or ANTHROPIC_API_KEY or GOOGLE_APPLICATION_CREDENTIALS, VERTEXAI_PROJECT, VERTEXAI_LOCATION
 # TAVILY_API_KEY
+tavily_client = TavilyClient(api_key=st.secrets["TAVILY_API_KEY"])
 
 ## Model selection and settings; pick sonnet or deepseek at the top
 MODEL = "sonnet"
@@ -83,7 +85,7 @@ def run_step(step: Dict[str, str], company_url: str) -> str:
         str: The result of the step.
     """
     search_query = step["search_query"].format(company_url=company_url)
-    search_results = f"Simulated search results for: {search_query}"  # Replace with actual search function
+    search_results = tavily_client.get_search_context(query=search_query, search_depth="advanced", max_tokens=8000)
     prompt = f"{step['prompt_to_analyse']}\n Base this on the following search results:\n {search_results}"
     return prompt_model(prompt)
 
