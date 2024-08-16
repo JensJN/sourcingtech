@@ -168,9 +168,9 @@ def run_step(step: Dict[str, str], company_url: str) -> str:
 ## Button to identify the model
 col1, col2 = st.columns([1, 3])
 if col1.button("Test Model"):
-    st.session_state.model_response = prompt_model("Which model are you? Answer in format: Vendor; Model")
+    st.session_state.model_response = prompt_model("Which model are you? Answer in format: Using model: Vendor, Model")
 
-col2.write(f"Using model: {st.session_state.model_response}")
+col2.write(f"{st.session_state.model_response}")
 
 # Input for company URL
 st.session_state.company_url = st.text_input("Enter company URL:", value=st.session_state.company_url)
