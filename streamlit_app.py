@@ -9,6 +9,8 @@ from tavily import TavilyClient
 st.set_page_config(page_title="JN test - Company Analysis Workflow")
 st.title("JN test - Company Analysis Workflow")
 
+logging.debug("Logging system initialized")
+
 # Define the steps for the workflow
 WORKFLOW_STEPS = [
     {"step_name": "Company Overview",
@@ -44,7 +46,14 @@ else:
     raise ValueError("Invalid MODEL_CHOICE.")
 
 # Configure logging
-logging.basicConfig(filename='llm_qa.log', level=logging.INFO, format='%(asctime)s - %(message)s')
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('llm_qa.log'),
+        logging.StreamHandler()
+    ]
+)
 #litellm.set_verbose=True ## for DEBUG only
 
 # Set up API keys and credentials
