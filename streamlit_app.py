@@ -21,6 +21,9 @@ WORKFLOW_STEPS = [
     }
 ]
 
+# Define required environment variables
+REQUIRED_ENV = ["TAVILY_API_KEY"]
+
 # Model selection and settings; pick sonnet or deepseek at the top
 MODEL = "sonnet_vertex"
 if MODEL == "sonnet_vertex":
@@ -29,12 +32,14 @@ if MODEL == "sonnet_vertex":
     TOP_P = None #don't adjust both temp and top_p
     FREQUENCY_PENALTY = None #n/a on vertex
     PRESENCE_PENALTY = None #n/a on vertex
+    REQUIRED_ENV.extend(["GOOGLE_APPLICATION_CREDENTIALS", "VERTEXAI_PROJECT", "VERTEXAI_LOCATION"])
 elif MODEL == "deepseek":
     MODEL_NAME = "deepseek/deepseek-chat"
     TEMPERATURE = None
     TOP_P = None
     FREQUENCY_PENALTY = None
     PRESENCE_PENALTY = None
+    REQUIRED_ENV.append("DEEPSEEK_API_KEY")
 else:
     raise ValueError("Invalid MODEL_CHOICE.")
 
