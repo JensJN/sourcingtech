@@ -64,9 +64,6 @@ st.title("Sourcing tech test JN")
 
 ## Button to identify the model
 col1, col2 = st.columns([1, 3])
-if col1.button("Identify Model"):
+if col1.button("Test Model"):
     model_response = prompt_model("Which model are you? Answer in format: Vendor; Model")
     col2.write(f"Using model: {model_response}")
-
-st.write("This is some test text printed below the button.")
-
