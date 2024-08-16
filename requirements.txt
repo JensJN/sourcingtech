@@ -1,4 +1,4 @@
 streamlit
 instructor
 litellm
-tavily
+tavily-python
