@@ -203,7 +203,13 @@ if col2.button("Summarize", use_container_width=True):
 
 # Display step results
 for i, step in enumerate(WORKFLOW_STEPS):
-    st.subheader(step["step_name"])
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        st.subheader(step["step_name"])
+    with col2:
+        if st.button("Run Step", key=f"run_step_{i}", use_container_width=True):
+            result = run_step(step, st.session_state.company_url)
+            st.session_state.step_results[i] = result
     st.text_area("", value=st.session_state.step_results[i], height=150, key=f"step_{i}")
 
 # Display final summary
