@@ -11,7 +11,7 @@ st.set_page_config(page_title="JN test - Company Analysis Workflow")
 st.title("JN test - Company Analysis Workflow")
 
 ## Define the steps for the workflow
-# Mandatory: first 3, rest optional
+# Mandatory: first 3, include_domains is optional URL whitelist
 WORKFLOW_STEPS = [
     {"step_name": "Company Overview",
      "search_query": "company overview {company_url}",
