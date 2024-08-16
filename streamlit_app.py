@@ -172,7 +172,7 @@ def run_step(step: Dict[str, str], company_url: str) -> str:
 
 ## Button to identify the model (only shown in debug mode)
 if DEBUG_MODE:
-    col1, col2 = st.columns([1, 3])
+    col1, col2 = st.columns(2)
     if col1.button("Test Model", use_container_width=True):
         st.session_state.model_response = prompt_model("Which model are you? Answer in format: Using model: Vendor, Model")
     col2.write(f"{st.session_state.model_response}")
