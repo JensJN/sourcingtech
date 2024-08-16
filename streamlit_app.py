@@ -208,8 +208,11 @@ for i, step in enumerate(WORKFLOW_STEPS):
         st.subheader(step["step_name"])
     with col2:
         if st.button("Run Step", key=f"run_step_{i}", use_container_width=True):
-            result = run_step(step, st.session_state.company_url)
-            st.session_state.step_results[i] = result
+            if st.session_state.company_url:
+                result = run_step(step, st.session_state.company_url)
+                st.session_state.step_results[i] = result
+            else:
+                st.error("Please enter a company URL.")
     st.text_area("", value=st.session_state.step_results[i], height=150, key=f"step_{i}")
 
 # Display final summary
