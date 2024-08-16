@@ -2,6 +2,7 @@ import streamlit as st
 import litellm
 import instructor
 import logging
+from logging import StreamHandler, FileHandler
 import os
 from typing import List, Dict
 from tavily import TavilyClient
@@ -43,8 +44,19 @@ elif MODEL == "deepseek":
 else:
     raise ValueError("Invalid MODEL_CHOICE.")
 
-# Configure logging                                                                                                         
-logging.basicConfig(filename='llm_qa.log', level=logging.INFO, format='%(asctime)s - %(message)s')                          
+## Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
+logger = logging.getLogger()
+# File handler
+file_handler = logging.FileHandler('llm_qa.log')
+file_handler.setLevel(logging.INFO)
+file_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
+logger.addHandler(file_handler)
+# Stream handler for console output
+stream_handler = StreamHandler()
+stream_handler.setLevel(logging.INFO)
+stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
+logger.addHandler(stream_handler)
 #litellm.set_verbose=True ## for DEBUG only
 
 # Set up API keys and credentials
