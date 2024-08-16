@@ -41,17 +41,27 @@ logging.basicConfig(filename='llm_qa.log', level=logging.INFO, format='%(asctime
 
 # Function to get a value from environment variable or Streamlit secrets
 def get_secret(key: str) -> str:
-    return os.environ.get(key) or st.secrets.get(key)
+    value = os.environ.get(key)
+    if value is None:
+        try:
+            value = st.secrets.get(key)
+        except FileNotFoundError:
+            st.error(f"Secret '{key}' not found. Please set it as an environment variable or in the secrets.toml file.")
+            return None
+    return value
 
 # Set up API keys and credentials
-os.environ["TAVILY_API_KEY"] = get_secret("TAVILY_API_KEY")
-os.environ["DEEPSEEK_API_KEY"] = get_secret("DEEPSEEK_API_KEY")
-os.environ["ANTHROPIC_API_KEY"] = get_secret("ANTHROPIC_API_KEY")
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = get_secret("GOOGLE_APPLICATION_CREDENTIALS")
-os.environ["VERTEXAI_PROJECT"] = get_secret("VERTEXAI_PROJECT")
-os.environ["VERTEXAI_LOCATION"] = get_secret("VERTEXAI_LOCATION")
+for key in ["TAVILY_API_KEY", "DEEPSEEK_API_KEY", "ANTHROPIC_API_KEY", "GOOGLE_APPLICATION_CREDENTIALS", "VERTEXAI_PROJECT", "VERTEXAI_LOCATION"]:
+    value = get_secret(key)
+    if value:
+        os.environ[key] = value
 
-tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
+tavily_api_key = os.environ.get("TAVILY_API_KEY")
+if tavily_api_key:
+    tavily_client = TavilyClient(api_key=tavily_api_key)
+else:
+    st.error("Tavily API key not found. Some features may not work.")
+    tavily_client = None
 instructorlitellm_client = instructor.from_litellm(litellm.completion)
 
 def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, **kwargs) -> str:
