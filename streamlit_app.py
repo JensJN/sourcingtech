@@ -147,7 +147,7 @@ def run_step(step: Dict[str, str], company_url: str) -> str:
     # Log step include_domains and search_params include_domains for debugging
     logging.info(f"Step include_domains: {step.get('include_domains', 'Not present')}")
     logging.info(f"Search params include_domains: {search_params.get('include_domains', 'Not present')}")
-    
+
     return ""
 
     search_results = tavily_client.search(**search_params)
