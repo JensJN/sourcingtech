@@ -9,14 +9,23 @@ import instructor
 # DEEPSEEK_API_KEY or ANTHROPIC_API_KEY
 # or GOOGLE_APPLICATION_CREDENTIALS, VERTEXAI_PROJECT, VERTEXAI_LOCATION
 
-## Model name and settings
-MODEL_NAME = "deepseek/deepseek-chat"
+## Model selection and settings
+MODEL_CHOICE = "sonnet"  # Change this to "deepseek" to use DeepSeek model
 
-MODEL_NAME="vertex_ai/claude-3-5-sonnet@20240620"
-TEMPERATURE = 0.7
-TOP_P = 1.0
-FREQUENCY_PENALTY = 0.0
-PRESENCE_PENALTY = 0.0
+if MODEL_CHOICE == "sonnet":
+    MODEL_NAME = "vertex_ai/claude-3-5-sonnet@20240620"
+    TEMPERATURE = 0.7
+    TOP_P = 1.0
+    FREQUENCY_PENALTY = 0.0
+    PRESENCE_PENALTY = 0.0
+elif MODEL_CHOICE == "deepseek":
+    MODEL_NAME = "deepseek/deepseek-chat"
+    TEMPERATURE = 0.7
+    TOP_P = 1.0
+    FREQUENCY_PENALTY = 0.0
+    PRESENCE_PENALTY = 0.0
+else:
+    raise ValueError("Invalid MODEL_CHOICE. Choose 'sonnet' or 'deepseek'.")
 
 client = instructor.from_litellm(litellm.completion)
 def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, **kwargs) -> str:
