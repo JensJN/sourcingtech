@@ -43,16 +43,8 @@ elif MODEL == "deepseek":
 else:
     raise ValueError("Invalid MODEL_CHOICE.")
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('llm_qa.log'),
-        logging.StreamHandler()
-    ]
-)
-logging.info("Logging system initialized")
+# Configure logging                                                                                                         
+logging.basicConfig(filename='llm_qa.log', level=logging.INFO, format='%(asctime)s - %(message)s')                          
 #litellm.set_verbose=True ## for DEBUG only
 
 # Set up API keys and credentials
