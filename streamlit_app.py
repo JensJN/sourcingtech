@@ -134,11 +134,22 @@ def run_step(step: Dict[str, str], company_url: str) -> str:
         str: The result of the step.
     """
     search_query = step["search_query"].format(company_url=company_url)
-    #search_results = tavily_client.get_search_context(query=search_query, search_depth="basic", max_tokens=8000, max_results=5)
-    search_results = tavily_client.search(query=search_query, search_depth="basic", max_results=5, include_raw_content=True)
+    search_params = {
+        "query": search_query,
+        "search_depth": "basic",
+        "max_results": 5,
+        "include_raw_content": True
+    }
+    
+    if "include_domains" in step:
+        include_domains = [domain.format(company_url=company_url) for domain in step["include_domains"]]
+        search_params["include_domains"] = include_domains
+    
+    search_results = tavily_client.search(**search_params)
     
     # Log the search results
     logging.info(f"Search Query: {search_query}")
+    logging.info(f"Search Parameters: {search_params}")
     logging.info(f"Search Results: {search_results}")
     
     prompt = f"{step['prompt_to_analyse']}\n Base this on the following search results:\n {search_results}"
