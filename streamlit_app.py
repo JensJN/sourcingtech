@@ -38,3 +38,8 @@ def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", **kwar
     return resp['choices'][0]['message']['content']
 
 st.write('Sourcing tech test JN')
+
+# Prompt the model and display the result
+model_question = "which model are you? are you active? one-line answer max."
+model_response = prompt_model(model_question, max_tokens=50)
+st.write(f"Model response: {model_response}")
