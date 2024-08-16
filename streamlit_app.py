@@ -182,8 +182,14 @@ if st.button("Analyze Company"):
         - how his business differentiates vs. its competitors
         - what customers are saying about his business
         - any recent news or key developments around his business I might congratulate him on
-        Be concise and base this on the following information:
-        """ + "\n\n".join(step_results)
+        I'll write greeting and sign-off separately; only provide email body to copy/paste, nothing else.
+        Use the following information about the company:
+        \n**********""" + "\n\n".join(step_results) + """\n**********\n
+        For drafting the email body, it's important that you write it as follows:
+        - Length: concise; max. 3 short paragraphs.
+        - Tone: conversational, direct, to the point.
+        - Language: factual, analytical, no flattery.
+        """
         final_summary = prompt_model(summary_prompt)
         st.write(final_summary)
     else:
