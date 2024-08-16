@@ -24,7 +24,7 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = get_secret("GOOGLE_APPLICATION_CR
 os.environ["VERTEXAI_PROJECT"] = get_secret("VERTEXAI_PROJECT")
 os.environ["VERTEXAI_LOCATION"] = get_secret("VERTEXAI_LOCATION")
 
-tavily_client = TavilyClient()
+tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
 
 ## Model selection and settings; pick sonnet or deepseek at the top
 MODEL = "sonnet"
