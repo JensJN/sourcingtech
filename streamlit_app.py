@@ -45,7 +45,11 @@ else:
     raise ValueError("Invalid MODEL_CHOICE.")
 
 ## Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
+# Remove any existing handlers from the root logger
+for handler in logging.root.handlers[:]:
+    logging.root.removeHandler(handler)
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', handlers=[])
 logger = logging.getLogger()
 # File handler
 file_handler = logging.FileHandler('llm_qa.log')
