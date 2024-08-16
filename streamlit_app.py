@@ -144,9 +144,13 @@ def run_step(step: Dict[str, str], company_url: str) -> str:
 
     search_results = tavily_client.search(**search_params)
     
+    # Filter out file results
+    filtered_results = [result for result in search_results['results'] if not result['url'].lower().endswith(('.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt'))]
+    search_results['results'] = filtered_results
+
     # Log the search results
     logging.info(f"Search Parameters: {search_params}")
-    logging.info(f"Search Results: {search_results}")
+    logging.info(f"Filtered Search Results: {search_results}")
     
     prompt = f"{step['prompt_to_analyse']}\n Base this on the following search results:\n {search_results}"
     return prompt_model(prompt)
