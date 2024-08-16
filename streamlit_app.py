@@ -10,14 +10,13 @@ import instructor
 # or GOOGLE_APPLICATION_CREDENTIALS, VERTEXAI_PROJECT, VERTEXAI_LOCATION
 
 ## Model name and settings
-#MODEL_NAME = "deepseek/deepseek-chat"
-MODEL_NAME="vertex_ai/claude-3-5-sonnet@20240620"
+MODEL_NAME = "deepseek/deepseek-chat"
 
-# Default parameters for model behavior
-DEFAULT_TEMPERATURE = 0.7
-DEFAULT_TOP_P = 1.0
-DEFAULT_FREQUENCY_PENALTY = 0.0
-DEFAULT_PRESENCE_PENALTY = 0.0
+MODEL_NAME="vertex_ai/claude-3-5-sonnet@20240620"
+TEMPERATURE = 0.7
+TOP_P = 1.0
+FREQUENCY_PENALTY = 0.0
+PRESENCE_PENALTY = 0.0
 
 client = instructor.from_litellm(litellm.completion)
 def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, **kwargs) -> str:
@@ -39,10 +38,10 @@ def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", respon
         "max_tokens": max_tokens,
         "messages": [{"role": role, "content": prompt}],
         "response_model": response_model,
-        "temperature": DEFAULT_TEMPERATURE,
-        "top_p": DEFAULT_TOP_P,
-        "frequency_penalty": DEFAULT_FREQUENCY_PENALTY,
-        "presence_penalty": DEFAULT_PRESENCE_PENALTY,
+        "temperature": TEMPERATURE,
+        "top_p": TOP_P,
+        "frequency_penalty": FREQUENCY_PENALTY,
+        "presence_penalty": PRESENCE_PENALTY,
     }
     params.update(kwargs)  # Add any additional kwargs
 
