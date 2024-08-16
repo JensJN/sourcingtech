@@ -133,9 +133,8 @@ def run_step(step: Dict[str, str], company_url: str) -> str:
     Returns:
         str: The result of the step.
     """
-    search_query = step["search_query"].format(company_url=company_url)
     search_params = {
-        "query": search_query,
+        "query": step["search_query"].format(company_url=company_url),
         "search_depth": "basic",
         "max_results": 5,
         "include_raw_content": True
@@ -148,7 +147,6 @@ def run_step(step: Dict[str, str], company_url: str) -> str:
     search_results = tavily_client.search(**search_params)
     
     # Log the search results
-    logging.info(f"Search Query: {search_query}")
     logging.info(f"Search Parameters: {search_params}")
     logging.info(f"Search Results: {search_results}")
     
