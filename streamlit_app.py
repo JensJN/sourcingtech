@@ -13,8 +13,16 @@ import instructor
 #MODEL_NAME = "deepseek/deepseek-chat"
 MODEL_NAME="vertex_ai/claude-3-5-sonnet@20240620"
 
+# Default parameters for model behavior
+DEFAULT_TEMPERATURE = 0.7
+DEFAULT_TOP_P = 1.0
+DEFAULT_FREQUENCY_PENALTY = 0.0
+DEFAULT_PRESENCE_PENALTY = 0.0
+
 client = instructor.from_litellm(litellm.completion)
-def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, **kwargs) -> str:
+def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, 
+                 temperature: float = None, top_p: float = None, 
+                 frequency_penalty: float = None, presence_penalty: float = None, **kwargs) -> str:
     """
     Calls the LLM API with the given prompt and returns the raw response as a string.
 
@@ -27,18 +35,20 @@ def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", respon
     Returns:
         str: The raw response from the LLM API.
     """
-    resp = client.chat.completions.create(
-        model=MODEL_NAME,
-        max_tokens=max_tokens,
-        messages=[
-            {
-                "role": role,
-                "content": prompt,
-            }
-        ],
-        response_model=response_model,
-        **kwargs
-    )
+    # Prepare parameters
+    params = {
+        "model": MODEL_NAME,
+        "max_tokens": max_tokens,
+        "messages": [{"role": role, "content": prompt}],
+        "response_model": response_model,
+        "temperature": temperature if temperature is not None else DEFAULT_TEMPERATURE,
+        "top_p": top_p if top_p is not None else DEFAULT_TOP_P,
+        "frequency_penalty": frequency_penalty if frequency_penalty is not None else DEFAULT_FREQUENCY_PENALTY,
+        "presence_penalty": presence_penalty if presence_penalty is not None else DEFAULT_PRESENCE_PENALTY,
+    }
+    params.update(kwargs)  # Add any additional kwargs
+
+    resp = client.chat.completions.create(**params)
     if response_model is None:
         return resp['choices'][0]['message']['content']
     else:
