@@ -63,6 +63,6 @@ st.write('Sourcing tech test JN')
 
 ## Button to identify the model
 if st.button("Identify Model"):
-    model_response = prompt_model("What model are you? Answer in format: Vendor; Model")
+    model_response = prompt_model("Which model are you? Answer in format: Vendor; Model")
     st.write(f"Using model: {model_response}")
 
