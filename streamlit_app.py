@@ -63,7 +63,8 @@ st.set_page_config(page_title="Sourcing tech test JN")
 st.title("Sourcing tech test JN")
 
 ## Button to identify the model
-if st.button("Identify Model"):
+col1, col2 = st.columns([1, 3])
+if col1.button("Identify Model"):
     model_response = prompt_model("Which model are you? Answer in format: Vendor; Model")
-    st.write(f"Using model: {model_response}")
+    col2.write(f"Using model: {model_response}")
 
