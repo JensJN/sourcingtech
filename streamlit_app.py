@@ -9,7 +9,8 @@ from typing import List, Dict
 from tavily import TavilyClient
 from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_END_OF_PROMPT
 import asyncio
-from model_config import MODEL, MODEL_NAME, TEMPERATURE, TOP_P, FREQUENCY_PENALTY, PRESENCE_PENALTY, REQUIRED_ENV
+from model_config import MODEL, MODEL_NAME, TEMPERATURE, TOP_P, FREQUENCY_PENALTY, PRESENCE_PENALTY
+from env_setup import setup_environment
 
 async def main():
 
@@ -50,15 +51,7 @@ async def main():
         os.environ['LITELLM_LOG'] = 'DEBUG'
 
     # Set up API keys and credentials
-    for key in REQUIRED_ENV:
-        value = os.environ.get(key)
-        if value is None:
-            try:
-                value = st.secrets.get(key)
-            except FileNotFoundError:
-                st.error(f"Secret '{key}' not found. Please set it as an environment variable, in a secrets.toml file or in the Streamlit console.")
-                continue
-        os.environ[key] = value
+    setup_environment()
 
     instructorlitellm_client = instructor.from_litellm(litellm.completion)
     try:
