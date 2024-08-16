@@ -61,7 +61,8 @@ def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", respon
 
 st.write('Sourcing tech test JN')
 
-## Print which model we're using
-model_response = prompt_model("What model are you? Answer in format: Vendor; Model")
-st.write(f"Using model: {model_response}")
+## Button to identify the model
+if st.button("Identify Model"):
+    model_response = prompt_model("What model are you? Answer in format: Vendor; Model")
+    st.write(f"Using model: {model_response}")
 
