@@ -1,9 +1,29 @@
 import streamlit as st
 import litellm
 import instructor
+from typing import List, Dict
 
 ## DEBUG only
 #litellm.set_verbose=True
+
+# Define the steps for the workflow
+WORKFLOW_STEPS = [
+    {
+        "step_name": "Company Overview",
+        "search_query": "company overview {company_url}",
+        "prompt_to_analyse": "Provide a brief overview of the company based on the search results."
+    },
+    {
+        "step_name": "Products and Services",
+        "search_query": "products and services offered by {company_url}",
+        "prompt_to_analyse": "List the main products and services offered by the company."
+    },
+    {
+        "step_name": "Company Culture",
+        "search_query": "company culture at {company_url}",
+        "prompt_to_analyse": "Describe the company culture and work environment based on the search results."
+    }
+]
 
 ## Requires env vars to be set for API keys in: 
 # DEEPSEEK_API_KEY or ANTHROPIC_API_KEY
@@ -59,11 +79,48 @@ def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", respon
     else:
         return resp.content
 
-st.set_page_config(page_title="Sourcing tech test JN")
-st.title("Sourcing tech test JN")
+def run_step(step: Dict[str, str], company_url: str) -> str:
+    """
+    Run a single step of the workflow.
+
+    Args:
+        step (Dict[str, str]): A dictionary containing step information.
+        company_url (str): The URL of the company being analyzed.
+
+    Returns:
+        str: The result of the step.
+    """
+    search_query = step["search_query"].format(company_url=company_url)
+    search_results = f"Simulated search results for: {search_query}"  # Replace with actual search function
+    prompt = f"{step['prompt_to_analyse']}\n\nSearch results:\n{search_results}"
+    return prompt_model(prompt)
+
+st.set_page_config(page_title="Company Analysis Workflow")
+st.title("Company Analysis Workflow")
 
 ## Button to identify the model
 col1, col2 = st.columns([1, 3])
 if col1.button("Test Model"):
     model_response = prompt_model("Which model are you? Answer in format: Vendor; Model")
     col2.write(f"Using model: {model_response}")
+
+# Input for company URL
+company_url = st.text_input("Enter company URL:")
+
+if st.button("Analyze Company"):
+    if company_url:
+        # Run each step of the workflow
+        step_results = []
+        for step in WORKFLOW_STEPS:
+            st.subheader(step["step_name"])
+            result = run_step(step, company_url)
+            st.write(result)
+            step_results.append(result)
+
+        # Final summary step
+        st.subheader("Final Summary")
+        summary_prompt = f"Provide a comprehensive summary of the company based on the following information:\n\n" + "\n\n".join(step_results)
+        final_summary = prompt_model(summary_prompt)
+        st.write(final_summary)
+    else:
+        st.error("Please enter a company URL.")
