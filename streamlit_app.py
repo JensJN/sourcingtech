@@ -123,14 +123,13 @@ if st.button("Analyze Company"):
 
         # Final summary step
         st.subheader("Final Summary")
-        summary_prompt = f"""I'm a VC. I want to draft an email to an entrepreneur that illustrates that I'm knowledgeable about:
+        summary_prompt = f"""I'm a VC. I want to draft an email to an entrepreneur that conveys that I'm knowledgeable about:
         - his business
         - the market and industry context his business operates in
-        - how the business differentiates vs. its competitors
+        - how his business differentiates vs. its competitors
         - what customers are saying about his business
         - any recent news or key developments around his business I might congratulate him on
-        
-        Base this on the following information:
+        Be concise and base this on the following information:
         """ + "\n\n".join(step_results)
         final_summary = prompt_model(summary_prompt)
         st.write(final_summary)
