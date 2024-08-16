@@ -1,3 +1,20 @@
+SUMMARY_BEGINNING_OF_PROMPT = """I'm a VC. I want to draft an email to an entrepreneur that conveys that I'm knowledgeable about:
+        - his business
+        - the market and industry context his business operates in
+        - how his business differentiates vs. its competitors
+        - what customers are saying about his business
+        - any recent news or key developments around his business I might congratulate him on
+        I'll write greeting and sign-off separately; only provide email body to copy/paste, nothing else.
+        Use the following information about the company:
+        \n**********"""
+
+SUMMARY_END_OF_PROMPT = """\n**********\n
+        For drafting the email body, it's important that you write it as follows:
+        - Length: concise; max. 3 short paragraphs.
+        - Tone: conversational, direct, to the point.
+        - Language: factual, analytical, no flattery.
+        """
+
 WORKFLOW_STEPS = [
     {
         "step_name": "Company Overview",

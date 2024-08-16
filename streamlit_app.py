@@ -7,7 +7,7 @@ from logging import StreamHandler, FileHandler
 import os
 from typing import List, Dict
 from tavily import TavilyClient
-from workflow_steps import WORKFLOW_STEPS
+from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_END_OF_PROMPT
 
 st.set_page_config(page_title="JN test - Company Analysis Workflow")
 st.title("JN test - Company Analysis Workflow")
@@ -176,20 +176,7 @@ if st.button("Analyze Company"):
 
         # Final summary step
         st.subheader("Final Summary")
-        summary_prompt = f"""I'm a VC. I want to draft an email to an entrepreneur that conveys that I'm knowledgeable about:
-        - his business
-        - the market and industry context his business operates in
-        - how his business differentiates vs. its competitors
-        - what customers are saying about his business
-        - any recent news or key developments around his business I might congratulate him on
-        I'll write greeting and sign-off separately; only provide email body to copy/paste, nothing else.
-        Use the following information about the company:
-        \n**********""" + "\n\n".join(step_results) + """\n**********\n
-        For drafting the email body, it's important that you write it as follows:
-        - Length: concise; max. 3 short paragraphs.
-        - Tone: conversational, direct, to the point.
-        - Language: factual, analytical, no flattery.
-        """
+        summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(step_results) + SUMMARY_END_OF_PROMPT
         final_summary = prompt_model(summary_prompt)
         st.write(final_summary)
     else:
