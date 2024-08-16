@@ -135,8 +135,7 @@ def run_step(step: Dict[str, str], company_url: str) -> str:
         "query": step["search_query"].format(company_url=company_url),
         "search_depth": "basic",
         "max_results": 5,
-        "include_raw_content": True,
-        "exclude_domains": [".pdf", ".doc", ".docx", ".txt"]
+        "include_raw_content": True
     }
     
     if "include_domains" in step:
