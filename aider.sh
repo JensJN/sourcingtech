@@ -19,6 +19,7 @@ docker pull ${IMAGE_NAME}
 
 # Start the Docker container with aider vars, docker socket and pwd (repo) mounted
 # note aider in docker will exit immediately
+# map 8501 port to access Streamlit locally in dev
 echo "Stopping, removing and starting Docker container..."
 docker stop ${CONTAINER_NAME}
 sleep 2
@@ -28,6 +29,7 @@ docker run --rm -d --name ${CONTAINER_NAME} \
   -v $(pwd):/app \
   -v /mnt/e/Dev/:/mnt/e/Dev/ \
   -e GOOGLE_APPLICATION_CREDENTIALS="$GOOGLE_APPLICATION_CREDENTIALS" -e VERTEXAI_PROJECT=$VERTEXAI_PROJECT -e VERTEXAI_LOCATION=$VERTEXAI_LOCATION \
+  -p 8501:8501 \
   --entrypoint sleep ${IMAGE_NAME} infinity
 
 # Wait a few seconds to ensure the container is up
