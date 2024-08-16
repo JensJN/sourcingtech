@@ -58,12 +58,12 @@ for key in REQUIRED_ENV:
             continue
     os.environ[key] = value
 
+instructorlitellm_client = instructor.from_litellm(litellm.completion)
 try:
     tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
 except KeyError:
     st.error("Error initialising Tavily client. Missing API key?")
     tavily_client = None
-instructorlitellm_client = instructor.from_litellm(litellm.completion)
 
 def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, **kwargs) -> str:
     """
