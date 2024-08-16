@@ -3,6 +3,10 @@ import litellm
 from litellm import completion_cost
 import instructor
 import logging
+import os
+
+# Global debug mode switch
+DEBUG_MODE = False
 from logging import StreamHandler, FileHandler
 import os
 from typing import List, Dict
@@ -60,7 +64,9 @@ stream_handler = StreamHandler()
 stream_handler.setLevel(logging.INFO)
 stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
 logger.addHandler(stream_handler)
-#os.environ['LITELLM_LOG'] = 'DEBUG' ## for DEBUG only, otherwise keep commented out
+
+if DEBUG_MODE:
+    os.environ['LITELLM_LOG'] = 'DEBUG'
 
 # Set up API keys and credentials
 for key in REQUIRED_ENV:
@@ -165,12 +171,12 @@ def run_step(step: Dict[str, str], company_url: str) -> str:
     prompt = f"{step['prompt_to_analyse']}\n Base this on the following search results:\n {search_results}"
     return prompt_model(prompt)
 
-## Button to identify the model
-col1, col2 = st.columns([1, 3])
-if col1.button("Test Model", use_container_width=True):
-    st.session_state.model_response = prompt_model("Which model are you? Answer in format: Using model: Vendor, Model")
-
-col2.write(f"{st.session_state.model_response}")
+## Button to identify the model (only shown in debug mode)
+if DEBUG_MODE:
+    col1, col2 = st.columns([1, 3])
+    if col1.button("Test Model", use_container_width=True):
+        st.session_state.model_response = prompt_model("Which model are you? Answer in format: Using model: Vendor, Model")
+    col2.write(f"{st.session_state.model_response}")
 
 # Input for company URL
 st.session_state.company_url = st.text_input("Enter company URL:", value=st.session_state.company_url)
