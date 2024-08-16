@@ -220,4 +220,4 @@ for i, step in enumerate(WORKFLOW_STEPS):
 
 # Display final summary
 st.subheader("Final Summary")
-st.text_area("Final Summary", value=st.session_state.final_summary, height=200, key="final_summary")
+st.text_area("", value=st.session_state.final_summary, height=200, key="final_summary")
