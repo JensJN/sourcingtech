@@ -6,6 +6,9 @@ import os
 from typing import List, Dict
 from tavily import TavilyClient
 
+st.set_page_config(page_title="JN test - Company Analysis Workflow")
+st.title("JN test - Company Analysis Workflow")
+
 # Define the steps for the workflow
 WORKFLOW_STEPS = [
     {"step_name": "Company Overview",
@@ -19,8 +22,8 @@ WORKFLOW_STEPS = [
 ]
 
 # Model selection and settings; pick sonnet or deepseek at the top
-MODEL = "sonnet"
-if MODEL == "sonnet":
+MODEL = "sonnet_vertex"
+if MODEL == "sonnet_vertex":
     MODEL_NAME = "vertex_ai/claude-3-5-sonnet@20240620"
     TEMPERATURE = 0.5 #0.3-0.5 for balanced, more for creativity
     TOP_P = None #don't adjust both temp and top_p
@@ -118,9 +121,6 @@ def run_step(step: Dict[str, str], company_url: str) -> str:
     search_results = tavily_client.get_search_context(query=search_query, search_depth="advanced", max_tokens=8000, max_results=5)
     prompt = f"{step['prompt_to_analyse']}\n Base this on the following search results:\n {search_results}"
     return prompt_model(prompt)
-
-st.set_page_config(page_title="JN test - Company Analysis Workflow")
-st.title("JN test - Company Analysis Workflow")
 
 ## Button to identify the model
 col1, col2 = st.columns([1, 3])
