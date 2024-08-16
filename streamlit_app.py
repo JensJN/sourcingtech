@@ -85,7 +85,7 @@ def run_step(step: Dict[str, str], company_url: str) -> str:
         str: The result of the step.
     """
     search_query = step["search_query"].format(company_url=company_url)
-    search_results = tavily_client.get_search_context(query=search_query, search_depth="advanced", max_tokens=8000)
+    search_results = tavily_client.get_search_context(query=search_query, search_depth="advanced", max_tokens=8000, max_results=5)
     prompt = f"{step['prompt_to_analyse']}\n Base this on the following search results:\n {search_results}"
     return prompt_model(prompt)
 
