@@ -3,15 +3,13 @@ import litellm
 from litellm import completion_cost
 import instructor
 import logging
-import os
-
-# Global debug mode switch
-DEBUG_MODE = False
 from logging import StreamHandler, FileHandler
 import os
 from typing import List, Dict
 from tavily import TavilyClient
 from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_END_OF_PROMPT
+
+
 
 st.set_page_config(page_title="JN test - Company Analysis Workflow")
 st.title("JN test - Company Analysis Workflow")
