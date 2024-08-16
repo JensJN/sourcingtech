@@ -1,5 +1,6 @@
 import streamlit as st
 import litellm
+from litellm import completion_cost
 import instructor
 import logging
 from logging import StreamHandler, FileHandler
@@ -99,6 +100,15 @@ def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", respon
     logging.info(f"Parameters: {params}")
 
     resp = instructorlitellm_client.chat.completions.create(**params)
+
+    # Calculate and log token usage and cost
+    input_tokens = resp.usage.prompt_tokens
+    output_tokens = resp.usage.completion_tokens
+    total_tokens = resp.usage.total_tokens
+    cost = completion_cost(completion_response=resp)
+    
+    logging.info(f"Token usage - Input: {input_tokens}, Output: {output_tokens}, Total: {total_tokens}")
+    logging.info(f"Estimated cost: ${cost:.6f}")
 
     # Log the response
     logging.info(f"Response: {resp}")
