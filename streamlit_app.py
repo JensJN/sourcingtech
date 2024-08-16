@@ -6,27 +6,19 @@ import os
 from typing import List, Dict
 from tavily import TavilyClient
 
-# Configure logging
-logging.basicConfig(filename='llm_qa.log', level=logging.INFO, format='%(asctime)s - %(message)s')
+# Define the steps for the workflow
+WORKFLOW_STEPS = [
+    {"step_name": "Company Overview",
+     "search_query": "company overview {company_url}",
+     "prompt_to_analyse": "Provide a brief overview of the company."
+    },
+    {"step_name": "Products and Services",
+     "search_query": "products and services offered by {company_url}",
+     "prompt_to_analyse": "List the main products and services offered by the company."
+    }
+]
 
-## DEBUG only
-#litellm.set_verbose=True
-
-# Function to get a value from environment variable or Streamlit secrets
-def get_secret(key: str) -> str:
-    return os.environ.get(key) or st.secrets.get(key)
-
-# Set up API keys and credentials
-os.environ["TAVILY_API_KEY"] = get_secret("TAVILY_API_KEY")
-os.environ["DEEPSEEK_API_KEY"] = get_secret("DEEPSEEK_API_KEY")
-os.environ["ANTHROPIC_API_KEY"] = get_secret("ANTHROPIC_API_KEY")
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = get_secret("GOOGLE_APPLICATION_CREDENTIALS")
-os.environ["VERTEXAI_PROJECT"] = get_secret("VERTEXAI_PROJECT")
-os.environ["VERTEXAI_LOCATION"] = get_secret("VERTEXAI_LOCATION")
-
-tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
-
-## Model selection and settings; pick sonnet or deepseek at the top
+# Model selection and settings; pick sonnet or deepseek at the top
 MODEL = "sonnet"
 if MODEL == "sonnet":
     MODEL_NAME = "vertex_ai/claude-3-5-sonnet@20240620"
@@ -43,7 +35,25 @@ elif MODEL == "deepseek":
 else:
     raise ValueError("Invalid MODEL_CHOICE.")
 
-client = instructor.from_litellm(litellm.completion)
+# Configure logging
+logging.basicConfig(filename='llm_qa.log', level=logging.INFO, format='%(asctime)s - %(message)s')
+#litellm.set_verbose=True ## for DEBUG only
+
+# Function to get a value from environment variable or Streamlit secrets
+def get_secret(key: str) -> str:
+    return os.environ.get(key) or st.secrets.get(key)
+
+# Set up API keys and credentials
+os.environ["TAVILY_API_KEY"] = get_secret("TAVILY_API_KEY")
+os.environ["DEEPSEEK_API_KEY"] = get_secret("DEEPSEEK_API_KEY")
+os.environ["ANTHROPIC_API_KEY"] = get_secret("ANTHROPIC_API_KEY")
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = get_secret("GOOGLE_APPLICATION_CREDENTIALS")
+os.environ["VERTEXAI_PROJECT"] = get_secret("VERTEXAI_PROJECT")
+os.environ["VERTEXAI_LOCATION"] = get_secret("VERTEXAI_LOCATION")
+
+tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
+instructorlitellm_client = instructor.from_litellm(litellm.completion)
+
 def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, **kwargs) -> str:
     """
     Calls the LLM API with the given prompt and returns the raw response as a string.
@@ -73,7 +83,7 @@ def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", respon
     # Log the parameters
     logging.info(f"Parameters: {params}")
 
-    resp = client.chat.completions.create(**params)
+    resp = instructorlitellm_client.chat.completions.create(**params)
 
     # Log the response
     logging.info(f"Response: {resp}")
@@ -98,18 +108,6 @@ def run_step(step: Dict[str, str], company_url: str) -> str:
     search_results = tavily_client.get_search_context(query=search_query, search_depth="advanced", max_tokens=8000, max_results=5)
     prompt = f"{step['prompt_to_analyse']}\n Base this on the following search results:\n {search_results}"
     return prompt_model(prompt)
-
-# Define the steps for the workflow
-WORKFLOW_STEPS = [
-    {"step_name": "Company Overview",
-     "search_query": "company overview {company_url}",
-     "prompt_to_analyse": "Provide a brief overview of the company."
-    },
-    {"step_name": "Products and Services",
-     "search_query": "products and services offered by {company_url}",
-     "prompt_to_analyse": "List the main products and services offered by the company."
-    }
-]
 
 st.set_page_config(page_title="JN test - Company Analysis Workflow")
 st.title("JN test - Company Analysis Workflow")
