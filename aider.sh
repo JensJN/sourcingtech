@@ -5,6 +5,7 @@ export ANTHROPIC_API_KEY="$(cat /mnt/e/Dev/AP.txt)"
 export GOOGLE_APPLICATION_CREDENTIALS="/mnt/e/Dev/VThrkm.json"
 export VERTEXAI_PROJECT="sharp-terminal-429710-k4"
 export VERTEXAI_LOCATION="europe-west1"
+export TAVILY_API_KEY="$(cat /mnt/e/Dev/TV.txt)"
 
 ## Variables
 IMAGE_NAME="paulgauthier/aider"

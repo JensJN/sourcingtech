@@ -11,8 +11,8 @@ logging.basicConfig(filename='llm_qa.log', level=logging.INFO, format='%(asctime
 #litellm.set_verbose=True
 
 ## Requires env vars to be set for API keys in: 
-# DEEPSEEK_API_KEY or ANTHROPIC_API_KEY
-# or GOOGLE_APPLICATION_CREDENTIALS, VERTEXAI_PROJECT, VERTEXAI_LOCATION
+# DEEPSEEK_API_KEY or ANTHROPIC_API_KEY or GOOGLE_APPLICATION_CREDENTIALS, VERTEXAI_PROJECT, VERTEXAI_LOCATION
+# TAVILY_API_KEY
 
 ## Model selection and settings; pick sonnet or deepseek at the top
 MODEL = "sonnet"
