@@ -12,6 +12,16 @@ from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_
 st.set_page_config(page_title="JN test - Company Analysis Workflow")
 st.title("JN test - Company Analysis Workflow")
 
+# Initialize session state
+if 'company_url' not in st.session_state:
+    st.session_state.company_url = ""
+if 'step_results' not in st.session_state:
+    st.session_state.step_results = [""] * len(WORKFLOW_STEPS)
+if 'final_summary' not in st.session_state:
+    st.session_state.final_summary = ""
+if 'model_response' not in st.session_state:
+    st.session_state.model_response = ""
+
 # Define required environment variables
 REQUIRED_ENV = ["TAVILY_API_KEY"]
 
@@ -158,35 +168,31 @@ def run_step(step: Dict[str, str], company_url: str) -> str:
 ## Button to identify the model
 col1, col2 = st.columns([1, 3])
 if col1.button("Test Model"):
-    model_response = prompt_model("Which model are you? Answer in format: Vendor; Model")
-    col2.write(f"Using model: {model_response}")
+    st.session_state.model_response = prompt_model("Which model are you? Answer in format: Vendor; Model")
+
+col2.write(f"Using model: {st.session_state.model_response}")
 
 # Input for company URL
-company_url = st.text_input("Enter company URL:")
+st.session_state.company_url = st.text_input("Enter company URL:", value=st.session_state.company_url)
 
-# Create empty placeholders for each step
-step_placeholders = []
-for step in WORKFLOW_STEPS:
+# Display step results
+for i, step in enumerate(WORKFLOW_STEPS):
     st.subheader(step["step_name"])
-    placeholder = st.empty()
-    step_placeholders.append(placeholder)
+    st.text_area("", value=st.session_state.step_results[i], height=150, key=f"step_{i}")
 
-# Create a placeholder for the final summary
+# Display final summary
 st.subheader("Final Summary")
-final_summary_placeholder = st.empty()
+st.text_area("", value=st.session_state.final_summary, height=200, key="final_summary")
 
 if st.button("Analyze Company"):
-    if company_url:
+    if st.session_state.company_url:
         # Run each step of the workflow
-        step_results = []
         for i, step in enumerate(WORKFLOW_STEPS):
-            result = run_step(step, company_url)
-            step_placeholders[i].write(result)
-            step_results.append(result)
+            result = run_step(step, st.session_state.company_url)
+            st.session_state.step_results[i] = result
 
         # Final summary step
-        summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(step_results) + SUMMARY_END_OF_PROMPT
-        final_summary = prompt_model(summary_prompt)
-        final_summary_placeholder.write(final_summary)
+        summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
+        st.session_state.final_summary = prompt_model(summary_prompt)
     else:
         st.error("Please enter a company URL.")
