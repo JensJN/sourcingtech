@@ -9,23 +9,22 @@ import instructor
 # DEEPSEEK_API_KEY or ANTHROPIC_API_KEY
 # or GOOGLE_APPLICATION_CREDENTIALS, VERTEXAI_PROJECT, VERTEXAI_LOCATION
 
-## Model selection and settings
-MODEL_CHOICE = "sonnet"  # Change this to "deepseek" to use DeepSeek model
-
-if MODEL_CHOICE == "sonnet":
+## Model selection and settings; pick sonnet or deepseek at the top
+MODEL = "sonnet"
+if MODEL == "sonnet":
     MODEL_NAME = "vertex_ai/claude-3-5-sonnet@20240620"
-    TEMPERATURE = 0.7
-    TOP_P = 1.0
-    FREQUENCY_PENALTY = 0.0
-    PRESENCE_PENALTY = 0.0
-elif MODEL_CHOICE == "deepseek":
+    TEMPERATURE = 0.5 #0.3-0.5 for balanced, more for creativity
+    TOP_P = None #don't adjust both temp and top_p
+    FREQUENCY_PENALTY = None #n/a on vertex
+    PRESENCE_PENALTY = None #n/a on vertex
+elif MODEL == "deepseek":
     MODEL_NAME = "deepseek/deepseek-chat"
-    TEMPERATURE = 0.7
-    TOP_P = 1.0
-    FREQUENCY_PENALTY = 0.0
-    PRESENCE_PENALTY = 0.0
+    TEMPERATURE = None
+    TOP_P = None
+    FREQUENCY_PENALTY = None
+    PRESENCE_PENALTY = None
 else:
-    raise ValueError("Invalid MODEL_CHOICE. Choose 'sonnet' or 'deepseek'.")
+    raise ValueError("Invalid MODEL_CHOICE.")
 
 client = instructor.from_litellm(litellm.completion)
 def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, **kwargs) -> str:
@@ -50,7 +49,7 @@ def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", respon
         "temperature": TEMPERATURE,
         "top_p": TOP_P,
         "frequency_penalty": FREQUENCY_PENALTY,
-        "presence_penalty": PRESENCE_PENALTY,
+        "presence_penalty": PRESENCE_PENALTY
     }
     params.update(kwargs)  # Add any additional kwargs
 
@@ -63,6 +62,6 @@ def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", respon
 st.write('Sourcing tech test JN')
 
 ## Print which model we're using
-model_response = prompt_model("which model provider and version are you? one-line answer max.")
+model_response = prompt_model("What model are you? Answer in format: Vendor; Model")
 st.write(f"Using model: {model_response}")
 
