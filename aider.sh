@@ -39,6 +39,7 @@ docker exec ${CONTAINER_NAME} bash -c "
   apt-get update &&
   apt-get install -y docker.io &&
   pip install -U google-cloud-aiplatform "anthropic[vertex]" &&
+  pip install -U -r requirements.txt &&
   apt-get clean &&
   rm -rf /var/lib/apt/lists/*
 "
