@@ -50,7 +50,7 @@ stream_handler = StreamHandler()
 stream_handler.setLevel(logging.INFO)
 stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
 logger.addHandler(stream_handler)
-#litellm.set_verbose=True ## for DEBUG only
+#os.environ['LITELLM_LOG'] = 'DEBUG' ## for DEBUG only, otherwise keep commented out
 
 # Set up API keys and credentials
 for key in REQUIRED_ENV:
@@ -107,9 +107,8 @@ def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", respon
     total_tokens = resp.usage.total_tokens
     cost = completion_cost(completion_response=resp)
     
-    logging.info(f"Token usage - Input: {input_tokens}, Output: {output_tokens}, Total: {total_tokens}")
-    logging.info(f"Estimated cost: ${cost:.6f}")
-
+    logging.info(f"Token usage - Estimated cost: ${cost:.6f}, Input: {input_tokens}, Output: {output_tokens}, Total: {total_tokens}")
+    
     # Log the response
     logging.info(f"Response: {resp}")
 
