@@ -6,24 +6,10 @@ from logging import StreamHandler, FileHandler
 import os
 from typing import List, Dict
 from tavily import TavilyClient
+from workflow_steps import WORKFLOW_STEPS
 
 st.set_page_config(page_title="JN test - Company Analysis Workflow")
 st.title("JN test - Company Analysis Workflow")
-
-## Define the steps for the workflow
-# Mandatory: first 3, include_domains is optional URL whitelist
-WORKFLOW_STEPS = [
-    {"step_name": "Company Overview",
-     "search_query": "company overview {company_url}",
-     "prompt_to_analyse": "Provide a brief overview of the company.",
-     "include_domains": ["{company_url}", "wikipedia.org"]
-    },
-    {"step_name": "Products and Services",
-     "search_query": "products and services offered by {company_url}",
-     "prompt_to_analyse": "List the main products and services offered by the company.",
-     "include_domains": ["{company_url}"]
-    }
-]
 
 # Define required environment variables
 REQUIRED_ENV = ["TAVILY_API_KEY"]
