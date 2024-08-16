@@ -59,7 +59,7 @@ def get_secret(key: str) -> str:
     return value
 
 # Set up API keys and credentials
-for key in ["TAVILY_API_KEY", "DEEPSEEK_API_KEY", "ANTHROPIC_API_KEY", "GOOGLE_APPLICATION_CREDENTIALS", "VERTEXAI_PROJECT", "VERTEXAI_LOCATION"]:
+for key in REQUIRED_ENV:
     value = get_secret(key)
     if value:
         os.environ[key] = value
