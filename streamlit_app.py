@@ -180,11 +180,6 @@ if DEBUG_MODE:
 # Input for company URL
 st.session_state.company_url = st.text_input("Enter company URL:", value=st.session_state.company_url)
 
-col1, col2 = st.columns(2)
-
-col1.button("Analyze Company", on_click=analyze_company_callback, use_container_width=True)
-col2.button("Summarize", on_click=summarize_callback, use_container_width=True)
-
 def analyze_company_callback():
     if st.session_state.company_url:
         for i, step in enumerate(WORKFLOW_STEPS):
@@ -206,6 +201,11 @@ def run_step_callback(step_index):
         st.session_state.step_results[step_index] = result
     else:
         st.error("Please enter a company URL.")
+
+col1, col2 = st.columns(2)
+
+col1.button("Analyze Company", on_click=analyze_company_callback, use_container_width=True)
+col2.button("Summarize", on_click=summarize_callback, use_container_width=True)
 
 # Display step results
 for i, step in enumerate(WORKFLOW_STEPS):
