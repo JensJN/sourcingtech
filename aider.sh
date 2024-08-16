@@ -30,6 +30,7 @@ docker run --rm -d --name ${CONTAINER_NAME} \
   -v $(pwd):/app \
   -v /mnt/e/Dev/:/mnt/e/Dev/ \
   -e GOOGLE_APPLICATION_CREDENTIALS="$GOOGLE_APPLICATION_CREDENTIALS" -e VERTEXAI_PROJECT=$VERTEXAI_PROJECT -e VERTEXAI_LOCATION=$VERTEXAI_LOCATION \
+  -e TAVILY_API_KEY="$TAVILY_API_KEY" \
   -p 8501:8501 \
   --entrypoint sleep ${IMAGE_NAME} infinity
 
