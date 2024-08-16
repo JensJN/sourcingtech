@@ -59,7 +59,8 @@ def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", respon
     else:
         return resp.content
 
-st.write('Sourcing tech test JN')
+st.set_page_config(page_title="Sourcing tech test JN")
+st.title("Sourcing tech test JN")
 
 ## Button to identify the model
 if st.button("Identify Model"):
