@@ -11,15 +11,48 @@ from model_config import MODEL_NAME, TEMPERATURE, TOP_P, FREQUENCY_PENALTY, PRES
 tavily_client = None
 instructorlitellm_client = None
 
-def initialize_clients():
+def initialize_clients(mock_clients=False):
     global tavily_client, instructorlitellm_client
     
-    instructorlitellm_client = instructor.from_litellm(litellm.completion)
-    try:
-        tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
-    except KeyError:
-        logging.error("Error initialising Tavily client. Missing API key?")
-        tavily_client = None
+    if mock_clients:
+        instructorlitellm_client = _mock_instructorlitellm_client()
+        tavily_client = _mock_tavily_client()
+    else:
+        instructorlitellm_client = instructor.from_litellm(litellm.completion)
+        try:
+            tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
+        except KeyError:
+            logging.error("Error initialising Tavily client. Missing API key?")
+            tavily_client = None
+
+def _mock_instructorlitellm_client():
+    # Implement mock functionality for instructorlitellm_client
+    class MockInstructorLiteLLM:
+        def __init__(self):
+            self.chat = self
+
+        class completions:
+            @staticmethod
+            def create(**kwargs):
+                return {
+                    'choices': [{'message': {'content': 'Mock response from instructorlitellm_client'}}],
+                    'usage': {'prompt_tokens': 10, 'completion_tokens': 20, 'total_tokens': 30}
+                }
+
+    return MockInstructorLiteLLM()
+
+def _mock_tavily_client():
+    # Implement mock functionality for tavily_client
+    class MockTavilyClient:
+        @staticmethod
+        def search(**kwargs):
+            return {
+                'results': [
+                    {'url': 'https://example.com', 'content': 'Mock search result content'}
+                ]
+            }
+
+    return MockTavilyClient()
 
 def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, **kwargs) -> str:
     """
