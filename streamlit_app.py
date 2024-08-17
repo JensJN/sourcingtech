@@ -8,6 +8,7 @@ import os
 from typing import List, Dict
 from tavily import TavilyClient
 from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_END_OF_PROMPT
+from model_config import MODEL, MODEL_NAME, TEMPERATURE, TOP_P, FREQUENCY_PENALTY, PRESENCE_PENALTY, REQUIRED_ENV
 
 # Set DEBUG_MODE
 DEBUG_MODE = False
@@ -24,28 +25,6 @@ if 'final_summary' not in st.session_state:
     st.session_state.final_summary = ""
 if 'model_response' not in st.session_state:
     st.session_state.model_response = ""
-
-# Define required environment variables
-REQUIRED_ENV = ["TAVILY_API_KEY"]
-
-# Model selection and settings; pick sonnet or deepseek at the top
-MODEL = "sonnet_vertex"
-if MODEL == "sonnet_vertex":
-    MODEL_NAME = "vertex_ai/claude-3-5-sonnet@20240620"
-    TEMPERATURE = 0.5 #0.3-0.5 for balanced, more for creativity
-    TOP_P = None #don't adjust both temp and top_p
-    FREQUENCY_PENALTY = None #n/a on vertex
-    PRESENCE_PENALTY = None #n/a on vertex
-    REQUIRED_ENV.extend(["GOOGLE_APPLICATION_CREDENTIALS", "VERTEXAI_PROJECT", "VERTEXAI_LOCATION"])
-elif MODEL == "deepseek":
-    MODEL_NAME = "deepseek/deepseek-chat"
-    TEMPERATURE = None
-    TOP_P = None
-    FREQUENCY_PENALTY = None
-    PRESENCE_PENALTY = None
-    REQUIRED_ENV.append("DEEPSEEK_API_KEY")
-else:
-    raise ValueError("Invalid MODEL_CHOICE.")
 
 ## Configure logging
 # Remove any existing handlers from the root logger
