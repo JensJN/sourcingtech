@@ -34,6 +34,8 @@ if 'is_summary_running' not in st.session_state:
     st.session_state.is_summary_running = False
 if 'summary_start_time' not in st.session_state:
     st.session_state.summary_start_time = None
+if 'is_step_done' not in st.session_state:
+    st.session_state.is_step_done = [False] * len(WORKFLOW_STEPS)
 
 ## Button to identify the model (only shown in debug mode)
 if DEBUG_MODE:
@@ -79,6 +81,10 @@ def create_display_step_function(step_index):
     run_every_this_step = 1.0 if st.session_state.is_step_running[step_index] else None
     @st.fragment(run_every=run_every_this_step)
     def display_step():
+        if st.session_state.is_step_done[step_index]:
+            st.session_state.is_step_done[step_index] = False
+            st.rerun()
+
         col1, col2 = st.columns([3, 1])
         with col1:
             st.subheader(WORKFLOW_STEPS[step_index]["step_name"])
@@ -103,6 +109,7 @@ def create_display_step_function(step_index):
                         st.session_state.step_results[step_index] = result
                         st.session_state.is_step_running[step_index] = False
                         st.session_state.step_start_time[step_index] = None
+                        st.session_state.is_step_done[step_index] = True
 
                     thread = threading.Thread(target=work_process, daemon=True)
                     add_script_run_ctx(thread)
