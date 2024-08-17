@@ -119,7 +119,7 @@ async def main():
         try:
             loop = asyncio.get_event_loop()
             #search_results = await loop.run_in_executor(None, lambda: tavily_client.search(**search_params))
-            search_results = {"results": ["say you successfully received a test result JN 1234"]}
+            search_results = {"results": [{"url": "https://example.com", "content": "say you successfully received a test result JN 1234"}]}
             time.sleep(3)
             if DEBUG_MODE: logging.info(f"tavily_client: search completed")
         except Exception as e:
