@@ -102,6 +102,7 @@ async def main():
         Returns:
             str: The result of the step.
         """
+        if DEBUG_MODE: logging.info(f"Starting run_step for step: {step['step_name']}")
         search_params = {
             "query": step["search_query"].format(company_url=company_url),
             "search_depth": "basic",
@@ -114,8 +115,12 @@ async def main():
             search_params["include_domains"] = include_domains
         
         if DEBUG_MODE: logging.info(f"tavily_client: running await search")
-        search_results = await tavily_client.search(**search_params)
-        if DEBUG_MODE: logging.info(f"tavily_client: resuming after await search")
+        try:
+            search_results = await tavily_client.search(**search_params)
+            if DEBUG_MODE: logging.info(f"tavily_client: resuming after await search")
+        except Exception as e:
+            logging.error(f"Error during Tavily search: {str(e)}")
+            search_results = {"results": []}
 
         # Filter out file results
         filtered_results = [result for result in search_results['results'] if not result['url'].lower().endswith(('.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt', '.rtf', '.csv', '.zip','.rar'))]
