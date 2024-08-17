@@ -55,23 +55,6 @@ def analyze_company_callback():
     else:
         st.error("Please enter a company URL.")
 
-def summarize_callback():
-    if any(st.session_state.step_results):
-        st.session_state.is_summary_running = True
-        st.session_state.summary_start_time = time.time()
-        
-        def work_process():
-            summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
-            st.session_state.final_summary = prompt_model(summary_prompt)
-            st.session_state.is_summary_running = False
-            st.session_state.summary_start_time = None
-
-        thread = threading.Thread(target=work_process, daemon=True)
-        add_script_run_ctx(thread)
-        thread.start()
-        st.rerun() #required to start run_every
-    else:
-        st.error("Please analyze the company first.")
 
 col1, _ = st.columns(2)
 
@@ -143,12 +126,27 @@ def display_summary():
         if st.session_state.is_summary_running:
             elapsed_time = int(time.time() - st.session_state.summary_start_time)
             button_text = f"Running... {elapsed_time}s"
-        st.button(
+        if st.button(
             button_text,
-            on_click=summarize_callback,
             disabled=st.session_state.is_summary_running,
             use_container_width=True
-        )
+        ):
+            if any(st.session_state.step_results):
+                st.session_state.is_summary_running = True
+                st.session_state.summary_start_time = time.time()
+                
+                def work_process():
+                    summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
+                    st.session_state.final_summary = prompt_model(summary_prompt)
+                    st.session_state.is_summary_running = False
+                    st.session_state.summary_start_time = None
+
+                thread = threading.Thread(target=work_process, daemon=True)
+                add_script_run_ctx(thread)
+                thread.start()
+                st.rerun() #required to start run_every
+            else:
+                st.error("Please analyze the company first.")
     st.text_area("", value=st.session_state.final_summary, height=200, key="final_summary")
 
 display_summary()
