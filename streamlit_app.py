@@ -29,6 +29,10 @@ if 'is_step_running' not in st.session_state:
     st.session_state.is_step_running = [False] * len(WORKFLOW_STEPS)
 if 'step_start_time' not in st.session_state:
     st.session_state.step_start_time = [None] * len(WORKFLOW_STEPS)
+if 'is_summary_running' not in st.session_state:
+    st.session_state.is_summary_running = False
+if 'summary_start_time' not in st.session_state:
+    st.session_state.summary_start_time = None
 
 ## Button to identify the model (only shown in debug mode)
 if DEBUG_MODE:
@@ -50,8 +54,19 @@ def analyze_company_callback():
 
 def summarize_callback():
     if any(st.session_state.step_results):
-        summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
-        st.session_state.final_summary = prompt_model(summary_prompt)
+        st.session_state.is_summary_running = True
+        st.session_state.summary_start_time = time.time()
+        
+        def work_process():
+            summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
+            st.session_state.final_summary = prompt_model(summary_prompt)
+            st.session_state.is_summary_running = False
+            st.session_state.summary_start_time = None
+            st.rerun()
+
+        thread = threading.Thread(target=work_process, daemon=True)
+        add_script_run_ctx(thread)
+        thread.start()
     else:
         st.error("Please analyze the company first.")
 
@@ -113,13 +128,22 @@ for i in range(len(WORKFLOW_STEPS)):
     globals()[f'display_step_{i}']()
 
 # Display final summary
-@st.fragment
+@st.fragment(run_every=1.0 if st.session_state.is_summary_running else None)
 def display_summary():
     col1, col2 = st.columns([3, 1])
     with col1:
         st.subheader("Final Summary")
     with col2:
-        st.button("Summarize", on_click=summarize_callback, use_container_width=True)
+        button_text = "Summarize"
+        if st.session_state.is_summary_running:
+            elapsed_time = int(time.time() - st.session_state.summary_start_time)
+            button_text = f"Running... {elapsed_time}s"
+        st.button(
+            button_text,
+            on_click=summarize_callback,
+            disabled=st.session_state.is_summary_running,
+            use_container_width=True
+        )
     st.text_area("", value=st.session_state.final_summary, height=200, key="final_summary")
 
 display_summary()
