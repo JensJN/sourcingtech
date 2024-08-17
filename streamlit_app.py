@@ -41,7 +41,7 @@ async def main():
         st.error("Error initialising Tavily client. Missing API key?")
         tavily_client = None
 
-    def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, **kwargs) -> str:
+    async def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, **kwargs) -> str:
         """
         Calls the LLM API with the given prompt and returns the raw response as a string.
 
@@ -70,7 +70,7 @@ async def main():
         # Log the parameters
         logging.info(f"Parameters: {params}")
 
-        resp = instructorlitellm_client.chat.completions.create(**params)
+        resp = await instructorlitellm_client.chat.completions.create(**params)
 
         # Calculate and log token usage and cost
         input_tokens = resp.usage.prompt_tokens
@@ -82,7 +82,7 @@ async def main():
         except Exception as e:
             logging.error(f"Error calculating completion cost: {str(e)}")
             logging.info(f"Token usage - Input: {input_tokens}, Output: {output_tokens}, Total: {total_tokens}")
-        
+    
         # Log the response
         logging.info(f"Response: {resp}")
 
@@ -91,7 +91,7 @@ async def main():
         else:
             return resp.content
 
-    def run_step(step: Dict[str, str], company_url: str) -> str:
+    async def run_step(step: Dict[str, str], company_url: str) -> str:
         """
         Run a single step of the workflow.
 
@@ -108,13 +108,13 @@ async def main():
             "max_results": 5,
             "include_raw_content": True
         }
-        
+    
         if "include_domains" in step:
             include_domains = [domain.format(company_url=company_url) for domain in step["include_domains"]]
             search_params["include_domains"] = include_domains
 
-        search_results = tavily_client.search(**search_params)
-        
+        search_results = await tavily_client.search(**search_params)
+    
         # Filter out file results
         filtered_results = [result for result in search_results['results'] if not result['url'].lower().endswith(('.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt', '.rtf', '.csv', '.zip','.rar'))]
         search_results['results'] = filtered_results
@@ -122,9 +122,9 @@ async def main():
         # Log the search results
         logging.info(f"Search Parameters: {search_params}")
         logging.info(f"Filtered Search Results: {search_results}")
-        
+    
         prompt = f"{step['prompt_to_analyse']}\n Base this on the following search results:\n {search_results}"
-        return prompt_model(prompt)
+        return await prompt_model(prompt)
 
     ## Button to identify the model (only shown in debug mode)
     if DEBUG_MODE:
@@ -136,32 +136,34 @@ async def main():
     # Input for company URL
     st.session_state.company_url = st.text_input("Enter company URL:", value=st.session_state.company_url)
 
-    def analyze_company_callback():
+    async def analyze_company_callback():
         if st.session_state.company_url:
             for i, step in enumerate(WORKFLOW_STEPS):
-                result = run_step(step, st.session_state.company_url)
+                result = await run_step(step, st.session_state.company_url)
                 st.session_state.step_results[i] = result
         else:
             st.error("Please enter a company URL.")
 
-    def summarize_callback():
+    async def summarize_callback():
         if any(st.session_state.step_results):
             summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
-            st.session_state.final_summary = prompt_model(summary_prompt)
+            st.session_state.final_summary = await prompt_model(summary_prompt)
         else:
             st.error("Please analyze the company first.")
 
-    def run_step_callback(step_index):
+    async def run_step_callback(step_index):
         if st.session_state.company_url:
-            result = run_step(WORKFLOW_STEPS[step_index], st.session_state.company_url)
+            result = await run_step(WORKFLOW_STEPS[step_index], st.session_state.company_url)
             st.session_state.step_results[step_index] = result
         else:
             st.error("Please enter a company URL.")
 
     col1, col2 = st.columns(2)
 
-    col1.button("Analyze Company", on_click=analyze_company_callback, use_container_width=True)
-    col2.button("Summarize", on_click=summarize_callback, use_container_width=True)
+    if col1.button("Analyze Company", use_container_width=True):
+        asyncio.create_task(analyze_company_callback())
+    if col2.button("Summarize", use_container_width=True):
+        asyncio.create_task(summarize_callback())
 
     # Display step results
     for i, step in enumerate(WORKFLOW_STEPS):
@@ -169,7 +171,8 @@ async def main():
         with col1:
             st.subheader(step["step_name"])
         with col2:
-            st.button("Run Step", key=f"run_step_{i}", on_click=run_step_callback, args=(i,), use_container_width=True)
+            if st.button("Run Step", key=f"run_step_{i}", use_container_width=True):
+                asyncio.create_task(run_step_callback(i))
         
         st.text_area("", value=st.session_state.step_results[i], height=150, key=f"step_{i}")
 
