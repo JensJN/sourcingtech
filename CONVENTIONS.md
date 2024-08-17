@@ -1,0 +1,1 @@
+- st.rerun() and @st.fragment are the correct notation in latest streamlit
