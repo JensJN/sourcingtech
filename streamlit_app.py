@@ -67,6 +67,7 @@ def summarize_callback():
         thread = threading.Thread(target=work_process, daemon=True)
         add_script_run_ctx(thread)
         thread.start()
+        st.rerun(scope="fragment")
     else:
         st.error("Please analyze the company first.")
 
@@ -85,6 +86,7 @@ def run_step_callback(step_index):
         thread = threading.Thread(target=work_process, daemon=True)
         add_script_run_ctx(thread)
         thread.start()
+        st.rerun(scope="fragment")
     else:
         st.error("Please enter a company URL.")
 
