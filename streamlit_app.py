@@ -62,14 +62,22 @@ col2.button("Summarize", on_click=summarize_callback, use_container_width=True)
 
 # Display step results
 for i, step in enumerate(WORKFLOW_STEPS):
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        st.subheader(step["step_name"])
-    with col2:
-        st.button("Run Step", key=f"run_step_{i}", on_click=run_step_callback, args=(i,), use_container_width=True)
-    
-    st.text_area("", value=st.session_state.step_results[i], height=150, key=f"step_{i}")
+    @st.fragment
+    def display_step(step_index=i):
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            st.subheader(WORKFLOW_STEPS[step_index]["step_name"])
+        with col2:
+            st.button("Run Step", key=f"run_step_{step_index}", on_click=run_step_callback, args=(step_index,), use_container_width=True)
+        
+        st.text_area("", value=st.session_state.step_results[step_index], height=150, key=f"step_{step_index}")
+
+    display_step()
 
 # Display final summary
-st.subheader("Final Summary")
-st.text_area("", value=st.session_state.final_summary, height=200, key="final_summary")
+@st.fragment
+def display_summary():
+    st.subheader("Final Summary")
+    st.text_area("", value=st.session_state.final_summary, height=200, key="final_summary")
+
+display_summary()
