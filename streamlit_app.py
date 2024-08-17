@@ -8,7 +8,7 @@ from utils import prompt_model, run_step
 # Setup environment and logging
 DEBUG_MODE = True # Set DEBUG_MODE = False unless debugging for dev
 setup_environment()
-setup_logging()
+setup_logging(DEBUG_MODE)
 
 st.set_page_config(page_title="JN test - Company Analysis Workflow")
 st.title("JN test - Company Analysis Workflow")
