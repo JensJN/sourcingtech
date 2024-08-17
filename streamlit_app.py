@@ -4,6 +4,7 @@ from litellm import completion_cost
 import instructor
 import logging
 import os
+import time
 from typing import List, Dict
 from tavily import TavilyClient
 from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_END_OF_PROMPT
@@ -117,7 +118,9 @@ async def main():
         if DEBUG_MODE: logging.info(f"tavily_client: running search")
         try:
             loop = asyncio.get_event_loop()
-            search_results = await loop.run_in_executor(None, lambda: tavily_client.search(**search_params))
+            #search_results = await loop.run_in_executor(None, lambda: tavily_client.search(**search_params))
+            search_results = {"results": ["say you successfully received a test result JN 1234"]}
+            time.sleep(3)
             if DEBUG_MODE: logging.info(f"tavily_client: search completed")
         except Exception as e:
             logging.error(f"Error during Tavily search: {str(e)}")
