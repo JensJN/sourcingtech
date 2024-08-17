@@ -11,6 +11,7 @@ from utils import prompt_model, run_step, initialize_clients
 DEBUG_MODE = True # Set DEBUG_MODE = False unless debugging for dev
 setup_environment()
 setup_logging(debug_mode=DEBUG_MODE)
+import logging
 initialize_clients(mock_clients=True)
 
 st.set_page_config(page_title="JN test - Company Analysis Workflow")
@@ -62,12 +63,10 @@ def summarize_callback():
             st.session_state.final_summary = prompt_model(summary_prompt)
             st.session_state.is_summary_running = False
             st.session_state.summary_start_time = None
-            st.rerun()
 
         thread = threading.Thread(target=work_process, daemon=True)
         add_script_run_ctx(thread)
         thread.start()
-        st.rerun(scope="fragment")
     else:
         st.error("Please analyze the company first.")
 
@@ -81,12 +80,10 @@ def run_step_callback(step_index):
             st.session_state.step_results[step_index] = result
             st.session_state.is_step_running[step_index] = False
             st.session_state.step_start_time[step_index] = None
-            st.rerun()
 
         thread = threading.Thread(target=work_process, daemon=True)
         add_script_run_ctx(thread)
         thread.start()
-        st.rerun(scope="fragment")
     else:
         st.error("Please enter a company URL.")
 
@@ -126,6 +123,13 @@ for i in range(len(WORKFLOW_STEPS)):
     # Turn the function into a fragment with run_every set if step/thread running
     run_every_this_step = 1.0 if st.session_state.is_step_running[i] else None
     st.fragment(func=globals()[f'display_step_{i}'],run_every=run_every_this_step)
+    
+    #### AIDER PLEASE ADD LOGGING FOR DEBUGGING HERE:
+    if DEBUG_MODE: logging.info(f"global func i: {i}")
+    if DEBUG_MODE: logging.info(f'display_step_{i}')
+    if DEBUG_MODE: logging.info(f"global func addr: {globals()[f'display_step_{i}']}")
+    if DEBUG_MODE: logging.info(f"global func run_every: {run_every_this_step}")
+    
     # Call the function
     globals()[f'display_step_{i}']()
 
