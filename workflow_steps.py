@@ -61,11 +61,13 @@ WORKFLOW_STEPS = [
 ]
 
 ## just for testing
-WORKFLOW_STEPS = [
-    {
-        "step_name": "Company Overview",
-        "search_query": "{company_url} about OR mission OR products OR services",
-        "prompt_to_analyse": "Summarize the key information about the company from its official website, including its mission, products/services, and any unique selling points.",
-        "include_domains": ["{company_url}"]
-    }
-]
+TEST_ONLY=True
+If TEST_ONLY=True:
+    WORKFLOW_STEPS = [
+        {
+            "step_name": "Company Overview",
+            "search_query": "{company_url} about OR mission OR products OR services",
+            "prompt_to_analyse": "Summarize the key information about the company from its official website, including its mission, products/services, and any unique selling points.",
+            "include_domains": ["{company_url}"]
+        }
+    ]
