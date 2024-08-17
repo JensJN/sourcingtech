@@ -35,14 +35,14 @@ def _mock_instructorlitellm_client():
         class completions:
             @staticmethod
             def create(**kwargs):
-                time.sleep(5)  # Add 5-second sleep
+                time.sleep(3)  # Add 5-second sleep
                 class MockResponse:
                     def __init__(self):
                         self.content = 'Mock response from instructorlitellm_client'
                         self.usage = type('MockUsage', (), {
-                            'prompt_tokens': 10,
-                            'completion_tokens': 20,
-                            'total_tokens': 30
+                            'prompt_tokens': 0,
+                            'completion_tokens': 0,
+                            'total_tokens': 0
                         })()
                     
                     def __getitem__(self, key):
@@ -57,7 +57,7 @@ def _mock_tavily_client():
     class MockTavilyClient:
         @staticmethod
         def search(**kwargs):
-            time.sleep(5)  # Add 5-second sleep
+            time.sleep(3)  # Add 5-second sleep
             return {
                 'results': [
                     {'url': 'https://example1.com', 'content': 'Mock search result content 1'},
