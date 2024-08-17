@@ -8,6 +8,7 @@ from typing import List, Dict
 from tavily import AsyncTavilyClient
 from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_END_OF_PROMPT
 import asyncio
+import concurrent.futures
 from model_config import MODEL, MODEL_NAME, TEMPERATURE, TOP_P, FREQUENCY_PENALTY, PRESENCE_PENALTY
 from env_setup import setup_environment
 
@@ -114,10 +115,12 @@ async def main():
             include_domains = [domain.format(company_url=company_url) for domain in step["include_domains"]]
             search_params["include_domains"] = include_domains
         
-        if DEBUG_MODE: logging.info(f"tavily_client: running await search")
+        if DEBUG_MODE: logging.info(f"tavily_client: running search")
         try:
-            search_results = await tavily_client.search(**search_params)
-            if DEBUG_MODE: logging.info(f"tavily_client: resuming after await search")
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                future = executor.submit(tavily_client.search, **search_params)
+                search_results = future.result()
+            if DEBUG_MODE: logging.info(f"tavily_client: search completed")
         except Exception as e:
             logging.error(f"Error during Tavily search: {str(e)}")
             search_results = {"results": []}
