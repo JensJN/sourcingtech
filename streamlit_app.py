@@ -80,8 +80,6 @@ col2.button("Summarize", on_click=summarize_callback, use_container_width=True)
 
 # Function to create display step functions
 def create_display_step_function(step_index):
-    run_every_this_step = 1.0 if st.session_state.is_step_running[step_index] else None
-    @st.fragment(run_every=run_every_this_step)
     def display_step():
         col1, col2 = st.columns([3, 1])
         with col1:
@@ -101,7 +99,7 @@ def create_display_step_function(step_index):
             )
         
         st.text_area("", value=st.session_state.step_results[step_index], height=150, key=f"step_{step_index}")
-    
+
     return display_step
 
 # Display step results
@@ -109,6 +107,9 @@ for i in range(len(WORKFLOW_STEPS)):
     display_step_func = create_display_step_function(i)
     # Register the function as a global
     globals()[f'display_step_{i}'] = display_step_func
+    # Turn the function into a fragment with run_every set if step/thread running
+    run_every_this_step = 1.0 if st.session_state.is_step_running[i] else None
+    st.fragment(func=globals()[f'display_step_{i}'],run_every=run_every_this_step)
     # Call the function
     globals()[f'display_step_{i}']()
 
