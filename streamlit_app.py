@@ -81,7 +81,8 @@ def create_display_step_function(step_index):
     run_every_this_step = 1.0 if st.session_state.is_step_running[step_index] else None
     @st.fragment(run_every=run_every_this_step)
     def display_step():
-        if st.session_state.is_step_done[step_index]:
+        # global rerun is required to reset run_every when all are done
+        if st.session_state.is_step_done[step_index] and all(not st.session_state.is_step_running[i] for i in range(len(WORKFLOW_STEPS))):
             st.session_state.is_step_done[step_index] = False
             st.rerun()
 
