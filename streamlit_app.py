@@ -90,11 +90,17 @@ def create_display_step_function(step_index):
                     st.session_state.step_start_time[step_index] = time.time()
                     
                     def work_process():
-                        result = run_step(WORKFLOW_STEPS[step_index], st.session_state.company_url)
-                        st.session_state.step_results[step_index] = result
-                        st.session_state.is_step_running[step_index] = False
-                        st.session_state.step_start_time[step_index] = None
-                        st.session_state.is_step_done[step_index] = True
+                        try:
+                            result = run_step(WORKFLOW_STEPS[step_index], st.session_state.company_url)
+                            st.session_state.step_results[step_index] = result
+                        except Exception as e:
+                            logging.error(f"Error in step {step_index}: {str(e)}")
+                            st.session_state.step_results[step_index] = f"Error occurred during step {step_index}."
+                        finally:
+                            st.session_state.is_step_running[step_index] = False
+                            st.session_state.step_start_time[step_index] = None
+                            st.session_state.is_step_done[step_index] = True
+                            logging.info(f"Step {step_index} work process completed")
 
                     thread = threading.Thread(target=work_process, daemon=True)
                     add_script_run_ctx(thread)
