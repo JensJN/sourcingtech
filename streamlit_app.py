@@ -124,6 +124,14 @@ for i in range(len(WORKFLOW_STEPS)):
 # Display final summary
 @st.fragment(run_every=1.0 if st.session_state.is_summary_running else None)
 def display_summary():
+    # global rerun is required to reset run_every when all are done
+    if 'is_summary_done' not in st.session_state:
+        st.session_state.is_summary_done = False
+    
+    if st.session_state.is_summary_done and not st.session_state.is_summary_running:
+        st.session_state.is_summary_done = False
+        st.rerun()
+
     col1, col2 = st.columns([3, 1])
     with col1:
         st.subheader("Final Summary")
