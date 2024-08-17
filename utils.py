@@ -36,9 +36,8 @@ def _mock_instructorlitellm_client():
             def create(**kwargs):
                 return {
                     'choices': [{'message': {'content': 'Mock response from instructorlitellm_client'}}],
-                    'usage': {'prompt_tokens': 10, 'completion_tokens': 20, 'total_tokens': 30}
+                    'usage': {'prompt_tokens': 0, 'completion_tokens': 0, 'total_tokens': 0}
                 }
-
     return MockInstructorLiteLLM()
 
 def _mock_tavily_client():
@@ -48,10 +47,11 @@ def _mock_tavily_client():
         def search(**kwargs):
             return {
                 'results': [
-                    {'url': 'https://example.com', 'content': 'Mock search result content'}
+                    {'url': 'https://example1.com', 'content': 'Mock search result content 1'},
+                    {'url': 'https://example2.com', 'content': 'Mock search result content 2'},
+                    {'url': 'https://example3.com', 'content': 'Mock search result content 3'}
                 ]
             }
-
     return MockTavilyClient()
 
 def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, **kwargs) -> str:
