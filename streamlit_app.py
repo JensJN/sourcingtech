@@ -115,8 +115,7 @@ def create_display_step_function(step_index):
                     thread = threading.Thread(target=work_process, daemon=True)
                     add_script_run_ctx(thread)
                     thread.start()
-                    #st.rerun(scope="fragment")
-                    st.rerun()
+                    st.rerun() #required to start run_every
                 else:
                     st.error("Please enter a company URL.")
         
