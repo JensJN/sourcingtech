@@ -137,7 +137,8 @@ def display_summary():
                 
                 def work_process():
                     summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
-                    st.session_state.final_summary = prompt_model(summary_prompt)
+                    result = prompt_model(summary_prompt)
+                    st.session_state.final_summary = result
                     st.session_state.is_summary_running = False
                     st.session_state.summary_start_time = None
                     
