@@ -36,6 +36,8 @@ if 'summary_start_time' not in st.session_state:
     st.session_state.summary_start_time = None
 if 'is_step_done' not in st.session_state:
     st.session_state.is_step_done = [False] * len(WORKFLOW_STEPS)
+if 'is_summary_done' not in st.session_state:
+    st.session_state.is_summary_done = False
 
 ## Button to identify the model (only shown in debug mode)
 if DEBUG_MODE:
@@ -66,7 +68,7 @@ def create_display_step_function(step_index):
     @st.fragment(run_every=run_every_this_step)
     def display_step():
         # global rerun is required to reset run_every when all are done
-        if st.session_state.is_step_done[step_index] and all(not st.session_state.is_step_running[i] for i in range(len(WORKFLOW_STEPS))):
+        if st.session_state.is_step_done[step_index] and all(not st.session_state.is_step_running[i] for i in range(len(WORKFLOW_STEPS))) and not st.session_state.is_summary_running:
             st.session_state.is_step_done[step_index] = False
             st.rerun()
 
@@ -124,11 +126,8 @@ for i in range(len(WORKFLOW_STEPS)):
 # Display final summary
 @st.fragment(run_every=1.0 if st.session_state.is_summary_running else None)
 def display_summary():
-    # global rerun is required to reset run_every when all are done
-    if 'is_summary_done' not in st.session_state:
-        st.session_state.is_summary_done = False
-    
-    if st.session_state.is_summary_done and not st.session_state.is_summary_running:
+    # global rerun is required to reset run_every when all are done 
+    if st.session_state.is_summary_done and all(not st.session_state.is_step_running[i] for i in range(len(WORKFLOW_STEPS))) and not st.session_state.is_summary_running:
         st.session_state.is_summary_done = False
         st.rerun()
 
@@ -160,6 +159,7 @@ def display_summary():
                     finally:
                         st.session_state.is_summary_running = False
                         st.session_state.summary_start_time = None
+                        st.session_state.is_summary_done = True
                         logging.info("Summary work process completed")
 
                 thread = threading.Thread(target=work_process, daemon=True)
