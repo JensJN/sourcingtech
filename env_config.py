@@ -1,13 +1,10 @@
-import os
-import streamlit as st
-import logging
-from logging import StreamHandler, FileHandler
-
 # Define required environment variables
 from model_config import REQUIRED_ENV
 
 # Set up API keys and credentials
 def setup_environment():
+    import os
+    import streamlit as st
     for key in REQUIRED_ENV:
         value = os.environ.get(key)
         if value is None:
@@ -20,6 +17,8 @@ def setup_environment():
 
 # Configure logging
 def setup_logging(debug_mode=False):
+    import logging
+    from logging import StreamHandler, FileHandler
     # Remove any existing handlers from the root logger
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
