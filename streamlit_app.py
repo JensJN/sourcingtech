@@ -75,7 +75,7 @@ col2.button("Summarize", on_click=summarize_callback, use_container_width=True)
 
 # Function to create display step functions
 def create_display_step_function(step_index):
-    run_every_this_step = None
+    run_every_this_step = 1 if st.session_state.is_step_running[step_index] else None
     @st.fragment(run_every=run_every_this_step)
     def display_step():
         col1, col2 = st.columns([3, 1])
