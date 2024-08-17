@@ -136,13 +136,17 @@ def display_summary():
                 st.session_state.summary_start_time = time.time()
                 
                 def work_process():
-                    summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
-                    result = prompt_model(summary_prompt)
-                    st.session_state.final_summary = result
-                    st.session_state.is_summary_running = False
-                    st.session_state.summary_start_time = None
-                    
-                    logging.info(f"work process done")
+                    try:
+                        summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
+                        result = prompt_model(summary_prompt)
+                        st.session_state.final_summary = result
+                    except Exception as e:
+                        logging.error(f"Error in summary generation: {str(e)}")
+                        st.session_state.final_summary = "Error occurred during summary generation."
+                    finally:
+                        st.session_state.is_summary_running = False
+                        st.session_state.summary_start_time = None
+                        logging.info("Summary work process completed")
 
                 thread = threading.Thread(target=work_process, daemon=True)
                 add_script_run_ctx(thread)
