@@ -24,6 +24,8 @@ if 'step_results' not in st.session_state:
     st.session_state.step_results = [""] * len(WORKFLOW_STEPS)
 if 'final_summary' not in st.session_state:
     st.session_state.final_summary = ""
+if 'summary_result' not in st.session_state:
+    st.session_state.summary_result = ""
 if 'model_response' not in st.session_state:
     st.session_state.model_response = ""
 if 'is_step_running' not in st.session_state:
@@ -145,10 +147,10 @@ def display_summary():
                     try:
                         summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
                         result = prompt_model(summary_prompt)
-                        st.session_state.final_summary = result
+                        st.session_state.summary_result = result
                     except Exception as e:
                         logging.error(f"Error in summary generation: {str(e)}")
-                        st.session_state.final_summary = "Error occurred during summary generation."
+                        st.session_state.summary_result = "Error occurred during summary generation."
                     finally:
                         st.session_state.is_summary_running = False
                         st.session_state.summary_start_time = None
@@ -160,6 +162,6 @@ def display_summary():
                 st.rerun() #required to start run_every
             else:
                 st.error("Please analyze the company first.")
-    st.text_area("", value=st.session_state.final_summary, height=200, key="final_summary")
+    st.text_area("", value=st.session_state.summary_result, height=200, key="final_summary")
 
 display_summary()
