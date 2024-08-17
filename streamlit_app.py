@@ -69,6 +69,7 @@ def summarize_callback():
         thread = threading.Thread(target=work_process, daemon=True)
         add_script_run_ctx(thread)
         thread.start()
+        st.rerun() #required to start run_every
     else:
         st.error("Please analyze the company first.")
 
