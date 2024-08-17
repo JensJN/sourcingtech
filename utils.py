@@ -7,15 +7,22 @@ import instructor
 from tavily import TavilyClient
 from model_config import MODEL_NAME, TEMPERATURE, TOP_P, FREQUENCY_PENALTY, PRESENCE_PENALTY
 
-# Initialize clients
-instructorlitellm_client = instructor.from_litellm(litellm.completion)
-try:
-    tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
-except KeyError:
-    logging.error("Error initialising Tavily client. Missing API key?")
-    tavily_client = None
+# Global variables for clients
+tavily_client = None
+instructorlitellm_client = None
+
+def initialize_clients():
+    global tavily_client, instructorlitellm_client
+    
+    instructorlitellm_client = instructor.from_litellm(litellm.completion)
+    try:
+        tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
+    except KeyError:
+        logging.error("Error initialising Tavily client. Missing API key?")
+        tavily_client = None
 
 def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, **kwargs) -> str:
+    initialize_clients()
     """
     Calls the LLM API with the given prompt and returns the raw response as a string.
 
@@ -66,6 +73,7 @@ def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", respon
         return resp.content
 
 def run_step(step: Dict[str, str], company_url: str) -> str:
+    initialize_clients()
     """
     Run a single step of the workflow.
 
