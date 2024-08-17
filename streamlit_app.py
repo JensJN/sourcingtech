@@ -8,7 +8,6 @@ from typing import List, Dict
 from tavily import AsyncTavilyClient
 from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_END_OF_PROMPT
 import asyncio
-import concurrent.futures
 from model_config import MODEL, MODEL_NAME, TEMPERATURE, TOP_P, FREQUENCY_PENALTY, PRESENCE_PENALTY
 from env_setup import setup_environment
 
@@ -117,9 +116,8 @@ async def main():
         
         if DEBUG_MODE: logging.info(f"tavily_client: running search")
         try:
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                future = executor.submit(tavily_client.search, **search_params)
-                search_results = future.result()
+            loop = asyncio.get_event_loop()
+            search_results = await loop.run_in_executor(None, lambda: tavily_client.search(**search_params))
             if DEBUG_MODE: logging.info(f"tavily_client: search completed")
         except Exception as e:
             logging.error(f"Error during Tavily search: {str(e)}")
