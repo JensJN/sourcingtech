@@ -34,10 +34,20 @@ def _mock_instructorlitellm_client():
         class completions:
             @staticmethod
             def create(**kwargs):
-                return {
-                    'choices': [{'message': {'content': 'Mock response from instructorlitellm_client'}}],
-                    'usage': {'prompt_tokens': 0, 'completion_tokens': 0, 'total_tokens': 0}
-                }
+                class MockResponse:
+                    def __init__(self):
+                        self.content = 'Mock response from instructorlitellm_client'
+                        self.usage = type('MockUsage', (), {
+                            'prompt_tokens': 10,
+                            'completion_tokens': 20,
+                            'total_tokens': 30
+                        })()
+                    
+                    def __getitem__(self, key):
+                        if key == 'choices':
+                            return [{'message': {'content': self.content}}]
+                
+                return MockResponse()
     return MockInstructorLiteLLM()
 
 def _mock_tavily_client():
