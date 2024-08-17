@@ -77,7 +77,10 @@ def create_display_step_function(step_index):
 # Display step results
 for i in range(len(WORKFLOW_STEPS)):
     display_step_func = create_display_step_function(i)
-    display_step_func()
+    # Register the function as a global
+    globals()[f'display_step_{i}'] = display_step_func
+    # Call the function
+    globals()[f'display_step_{i}']()
 
 # Display final summary
 @st.fragment
