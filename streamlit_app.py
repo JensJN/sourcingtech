@@ -154,8 +154,9 @@ async def main():
 
     async def run_step_callback(step_index):
         if st.session_state.company_url:
+            logging.info(f"run_step_callback: running await for step {step_index}")
             result = await run_step(WORKFLOW_STEPS[step_index], st.session_state.company_url)
-            logging.info(f"Step {step_index} result: {result}")
+            logging.info(f"run_step_callback: Step {step_index} result: {result}")
             st.session_state.step_results[step_index] = result
         else:
             st.error("Please enter a company URL.")
