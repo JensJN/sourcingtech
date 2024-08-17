@@ -140,6 +140,8 @@ def display_summary():
                     st.session_state.final_summary = prompt_model(summary_prompt)
                     st.session_state.is_summary_running = False
                     st.session_state.summary_start_time = None
+                    
+                    logging.info(f"work process done")
 
                 thread = threading.Thread(target=work_process, daemon=True)
                 add_script_run_ctx(thread)
