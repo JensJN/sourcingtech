@@ -76,6 +76,8 @@ col1.button("Analyze Company", on_click=analyze_company_callback, use_container_
 
 # Function to create display step functions
 def create_display_step_function(step_index):
+    run_every_this_step = 1.0 if st.session_state.is_step_running[step_index] else None
+    @st.fragment(run_every=run_every_this_step)
     def display_step():
         col1, col2 = st.columns([3, 1])
         with col1:
@@ -105,6 +107,8 @@ def create_display_step_function(step_index):
                     thread = threading.Thread(target=work_process, daemon=True)
                     add_script_run_ctx(thread)
                     thread.start()
+                    #st.rerun(scope="fragment")
+                    st.rerun()
                 else:
                     st.error("Please enter a company URL.")
         
@@ -117,9 +121,10 @@ for i in range(len(WORKFLOW_STEPS)):
     display_step_func = create_display_step_function(i)
     # Register the function as a global
     globals()[f'display_step_{i}'] = display_step_func
+    
     # Turn the function into a fragment with run_every set if step/thread running
     run_every_this_step = 1.0 if st.session_state.is_step_running[i] else None
-    st.fragment(func=globals()[f'display_step_{i}'],run_every=run_every_this_step)
+    #st.fragment(func=globals()[f'display_step_{i}'],run_every=run_every_this_step)
     
     #### AIDER PLEASE ADD LOGGING FOR DEBUGGING HERE:
     if DEBUG_MODE: logging.info(f"global func i: {i}")
