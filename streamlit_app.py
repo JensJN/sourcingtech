@@ -130,7 +130,7 @@ async def main():
     if DEBUG_MODE:
         col1, col2 = st.columns(2)
         if col1.button("Test Model", use_container_width=True):
-            st.session_state.model_response = prompt_model("Which model are you? Answer in format: Using model: Vendor, Model")
+            st.session_state.model_response = await prompt_model("Which model are you? Answer in format: Using model: Vendor, Model")
         col2.write(f"{st.session_state.model_response}")
 
     # Input for company URL
