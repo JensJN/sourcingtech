@@ -19,7 +19,7 @@ def setup_environment():
         os.environ[key] = value
 
 # Configure logging
-def setup_logging():
+def setup_logging(debug_mode=False):
     # Remove any existing handlers from the root logger
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
@@ -36,5 +36,8 @@ def setup_logging():
     stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
     logger.addHandler(stream_handler)
 
-    if DEBUG_MODE:
+    if debug_mode:
+        logger.setLevel(logging.DEBUG)
+        file_handler.setLevel(logging.DEBUG)
+        stream_handler.setLevel(logging.DEBUG)
         os.environ['LITELLM_LOG'] = 'DEBUG'
