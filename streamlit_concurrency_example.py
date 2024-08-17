@@ -38,7 +38,7 @@ def work_process(njobs):
     ss.is_btn_disabled = False  # enable button
 
 
-@st.experimental_fragment
+@st.fragment
 def analysis():
     with st.container(border=True):
         st.markdown('The process will be run from a different thread and reruns will be executed within the function only.')
