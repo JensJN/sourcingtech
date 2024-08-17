@@ -22,7 +22,6 @@ def initialize_clients():
         tavily_client = None
 
 def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, **kwargs) -> str:
-    initialize_clients()
     """
     Calls the LLM API with the given prompt and returns the raw response as a string.
 
@@ -73,7 +72,6 @@ def prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", respon
         return resp.content
 
 def run_step(step: Dict[str, str], company_url: str) -> str:
-    initialize_clients()
     """
     Run a single step of the workflow.
 
