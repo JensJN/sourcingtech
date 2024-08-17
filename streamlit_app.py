@@ -8,7 +8,7 @@ from typing import List, Dict
 from tavily import TavilyClient
 from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_END_OF_PROMPT
 from model_config import MODEL, MODEL_NAME, TEMPERATURE, TOP_P, FREQUENCY_PENALTY, PRESENCE_PENALTY
-from config import setup_environment, setup_logging, DEBUG_MODE
+from env_config import setup_environment, setup_logging, DEBUG_MODE
 
 st.set_page_config(page_title="JN test - Company Analysis Workflow")
 st.title("JN test - Company Analysis Workflow")
