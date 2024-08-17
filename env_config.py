@@ -3,9 +3,6 @@ import streamlit as st
 import logging
 from logging import StreamHandler, FileHandler
 
-# Set DEBUG_MODE
-DEBUG_MODE = False
-
 # Define required environment variables
 from model_config import REQUIRED_ENV
 
