@@ -1,6 +1,7 @@
 import streamlit as st
 from typing import List
 import threading
+import time
 from streamlit.runtime.scriptrunner import add_script_run_ctx
 from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_END_OF_PROMPT
 from env_config import setup_environment, setup_logging
@@ -26,6 +27,8 @@ if 'model_response' not in st.session_state:
     st.session_state.model_response = ""
 if 'is_step_running' not in st.session_state:
     st.session_state.is_step_running = [False] * len(WORKFLOW_STEPS)
+if 'step_start_time' not in st.session_state:
+    st.session_state.step_start_time = [None] * len(WORKFLOW_STEPS)
 
 ## Button to identify the model (only shown in debug mode)
 if DEBUG_MODE:
@@ -55,11 +58,13 @@ def summarize_callback():
 def run_step_callback(step_index):
     if st.session_state.company_url:
         st.session_state.is_step_running[step_index] = True
+        st.session_state.step_start_time[step_index] = time.time()
         
         def work_process():
             result = run_step(WORKFLOW_STEPS[step_index], st.session_state.company_url)
             st.session_state.step_results[step_index] = result
             st.session_state.is_step_running[step_index] = False
+            st.session_state.step_start_time[step_index] = None
             st.rerun()
 
         thread = threading.Thread(target=work_process, daemon=True)
@@ -82,8 +87,12 @@ def create_display_step_function(step_index):
         with col1:
             st.subheader(WORKFLOW_STEPS[step_index]["step_name"])
         with col2:
+            button_text = "Run Step"
+            if st.session_state.is_step_running[step_index]:
+                elapsed_time = int(time.time() - st.session_state.step_start_time[step_index])
+                button_text = f"Running... {elapsed_time}s"
             st.button(
-                "Run Step" if not st.session_state.is_step_running[step_index] else "Running...",
+                button_text,
                 key=f"run_step_{step_index}",
                 on_click=run_step_callback,
                 args=(step_index,),
