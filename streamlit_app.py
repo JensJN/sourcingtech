@@ -1,5 +1,7 @@
 import streamlit as st
 from typing import List
+import threading
+from streamlit.runtime.scriptrunner import add_script_run_ctx
 from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_END_OF_PROMPT
 from env_config import setup_environment, setup_logging
 from utils import prompt_model, run_step, initialize_clients
@@ -22,6 +24,8 @@ if 'final_summary' not in st.session_state:
     st.session_state.final_summary = ""
 if 'model_response' not in st.session_state:
     st.session_state.model_response = ""
+if 'is_step_running' not in st.session_state:
+    st.session_state.is_step_running = [False] * len(WORKFLOW_STEPS)
 
 ## Button to identify the model (only shown in debug mode)
 if DEBUG_MODE:
@@ -50,8 +54,17 @@ def summarize_callback():
 
 def run_step_callback(step_index):
     if st.session_state.company_url:
-        result = run_step(WORKFLOW_STEPS[step_index], st.session_state.company_url)
-        st.session_state.step_results[step_index] = result
+        st.session_state.is_step_running[step_index] = True
+        
+        def work_process():
+            result = run_step(WORKFLOW_STEPS[step_index], st.session_state.company_url)
+            st.session_state.step_results[step_index] = result
+            st.session_state.is_step_running[step_index] = False
+            st.rerun()
+
+        thread = threading.Thread(target=work_process, daemon=True)
+        add_script_run_ctx(thread)
+        thread.start()
     else:
         st.error("Please enter a company URL.")
 
@@ -68,7 +81,14 @@ def create_display_step_function(step_index):
         with col1:
             st.subheader(WORKFLOW_STEPS[step_index]["step_name"])
         with col2:
-            st.button("Run Step", key=f"run_step_{step_index}", on_click=run_step_callback, args=(step_index,), use_container_width=True)
+            st.button(
+                "Run Step" if not st.session_state.is_step_running[step_index] else "Running...",
+                key=f"run_step_{step_index}",
+                on_click=run_step_callback,
+                args=(step_index,),
+                disabled=st.session_state.is_step_running[step_index],
+                use_container_width=True
+            )
         
         st.text_area("", value=st.session_state.step_results[step_index], height=150, key=f"step_{step_index}")
     
