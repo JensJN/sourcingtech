@@ -104,7 +104,7 @@ for i in range(len(WORKFLOW_STEPS)):
     globals()[f'display_step_{i}']()
 
 # Display final summary
-@st.fragment()
+@st.fragment
 def display_summary():
     st.subheader("Final Summary")
     st.text_area("", value=st.session_state.final_summary, height=200, key="final_summary")
