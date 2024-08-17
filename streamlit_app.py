@@ -75,7 +75,8 @@ col2.button("Summarize", on_click=summarize_callback, use_container_width=True)
 
 # Function to create display step functions
 def create_display_step_function(step_index):
-    @st.fragment
+    run_every_this_step = None
+    @st.fragment(run_every=run_every_this_step)
     def display_step():
         col1, col2 = st.columns([3, 1])
         with col1:
@@ -103,7 +104,7 @@ for i in range(len(WORKFLOW_STEPS)):
     globals()[f'display_step_{i}']()
 
 # Display final summary
-@st.fragment
+@st.fragment()
 def display_summary():
     st.subheader("Final Summary")
     st.text_area("", value=st.session_state.final_summary, height=200, key="final_summary")
