@@ -22,8 +22,6 @@ if 'company_url' not in st.session_state:
     st.session_state.company_url = ""
 if 'step_results' not in st.session_state:
     st.session_state.step_results = [""] * len(WORKFLOW_STEPS)
-if 'final_summary' not in st.session_state:
-    st.session_state.final_summary = ""
 if 'summary_result' not in st.session_state:
     st.session_state.summary_result = ""
 if 'model_response' not in st.session_state:
