@@ -61,7 +61,7 @@ WORKFLOW_STEPS = [
 ]
 
 # For testing purposes
-TEST_ONLY = True
+TEST_ONLY = False
 
 if TEST_ONLY:
     WORKFLOW_STEPS = [
