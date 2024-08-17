@@ -1,9 +1,10 @@
+import os
+
 # Define required environment variables
 from model_config import REQUIRED_ENV
 
 # Set up API keys and credentials
 def setup_environment():
-    import os
     import streamlit as st
     for key in REQUIRED_ENV:
         value = os.environ.get(key)
@@ -36,7 +37,7 @@ def setup_logging(debug_mode=False):
     logger.addHandler(stream_handler)
 
     if debug_mode:
-        logger.setLevel(logging.DEBUG)
-        file_handler.setLevel(logging.DEBUG)
-        stream_handler.setLevel(logging.DEBUG)
+        #logger.setLevel(logging.DEBUG) #DO NOT CHANGE, CAUSES ISSUES WITH STREAMLIT
+        #file_handler.setLevel(logging.DEBUG) #DO NOT CHANGE, CAUSES ISSUES WITH STREAMLIT
+        #stream_handler.setLevel(logging.DEBUG) #DO NOT CHANGE, CAUSES ISSUES WITH STREAMLIT
         os.environ['LITELLM_LOG'] = 'DEBUG'
