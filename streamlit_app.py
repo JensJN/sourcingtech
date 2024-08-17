@@ -74,16 +74,6 @@ def run_step_callback(step_index):
     if st.session_state.company_url:
         st.session_state.is_step_running[step_index] = True
         st.session_state.step_start_time[step_index] = time.time()
-        
-        def work_process():
-            result = run_step(WORKFLOW_STEPS[step_index], st.session_state.company_url)
-            st.session_state.step_results[step_index] = result
-            st.session_state.is_step_running[step_index] = False
-            st.session_state.step_start_time[step_index] = None
-
-        thread = threading.Thread(target=work_process, daemon=True)
-        add_script_run_ctx(thread)
-        thread.start()
     else:
         st.error("Please enter a company URL.")
 
@@ -112,6 +102,17 @@ def create_display_step_function(step_index):
             )
         
         st.text_area("", value=st.session_state.step_results[step_index], height=150, key=f"step_{step_index}")
+
+        if st.session_state.is_step_running[step_index]:
+            def work_process():
+                result = run_step(WORKFLOW_STEPS[step_index], st.session_state.company_url)
+                st.session_state.step_results[step_index] = result
+                st.session_state.is_step_running[step_index] = False
+                st.session_state.step_start_time[step_index] = None
+
+            thread = threading.Thread(target=work_process, daemon=True)
+            add_script_run_ctx(thread)
+            thread.start()
 
     return display_step
 
