@@ -5,7 +5,7 @@ import instructor
 import logging
 import os
 from typing import List, Dict
-from tavily import TavilyClient
+from tavily import AsyncTavilyClient
 from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_END_OF_PROMPT
 import asyncio
 from model_config import MODEL, MODEL_NAME, TEMPERATURE, TOP_P, FREQUENCY_PENALTY, PRESENCE_PENALTY
@@ -34,9 +34,9 @@ async def main():
     if 'model_response' not in st.session_state:
         st.session_state.model_response = ""
 
-    instructorlitellm_client = instructor.from_litellm(litellm.completion)
+    instructorlitellm_client = instructor.from_litellm(litellm.acompletion)
     try:
-        tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
+        tavily_client = AsyncTavilyClient(api_key=os.environ["TAVILY_API_KEY"])
     except KeyError:
         st.error("Error initialising Tavily client. Missing API key?")
         tavily_client = None
