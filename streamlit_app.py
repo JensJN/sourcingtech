@@ -112,9 +112,11 @@ async def main():
         if "include_domains" in step:
             include_domains = [domain.format(company_url=company_url) for domain in step["include_domains"]]
             search_params["include_domains"] = include_domains
-
+        
+        if DEBUG_MODE: logging.info(f"tavily_client: running await search")
         search_results = await tavily_client.search(**search_params)
-    
+        if DEBUG_MODE: logging.info(f"tavily_client: resuming after await search")
+
         # Filter out file results
         filtered_results = [result for result in search_results['results'] if not result['url'].lower().endswith(('.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt', '.rtf', '.csv', '.zip','.rar'))]
         search_results['results'] = filtered_results
@@ -154,9 +156,9 @@ async def main():
 
     async def run_step_callback(step_index):
         if st.session_state.company_url:
-            logging.info(f"run_step_callback: running await for step {step_index}")
+            if DEBUG_MODE: logging.info(f"run_step_callback: running await for step {step_index}")
             result = await run_step(WORKFLOW_STEPS[step_index], st.session_state.company_url)
-            logging.info(f"run_step_callback: Step {step_index} result: {result}")
+            if DEBUG_MODE: logging.info(f"run_step_callback: Step {step_index} result: {result}")
             st.session_state.step_results[step_index] = result
         else:
             st.error("Please enter a company URL.")
