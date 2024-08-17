@@ -60,9 +60,10 @@ WORKFLOW_STEPS = [
     }
 ]
 
-## just for testing
-TEST_ONLY=True
-If TEST_ONLY=True:
+# For testing purposes
+TEST_ONLY = True
+
+if TEST_ONLY:
     WORKFLOW_STEPS = [
         {
             "step_name": "Company Overview",
