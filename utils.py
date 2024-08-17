@@ -1,5 +1,6 @@
 import os
 import logging
+import time
 from typing import Dict
 import litellm
 from litellm import completion_cost
@@ -34,6 +35,7 @@ def _mock_instructorlitellm_client():
         class completions:
             @staticmethod
             def create(**kwargs):
+                time.sleep(5)  # Add 5-second sleep
                 class MockResponse:
                     def __init__(self):
                         self.content = 'Mock response from instructorlitellm_client'
@@ -55,6 +57,7 @@ def _mock_tavily_client():
     class MockTavilyClient:
         @staticmethod
         def search(**kwargs):
+            time.sleep(5)  # Add 5-second sleep
             return {
                 'results': [
                     {'url': 'https://example1.com', 'content': 'Mock search result content 1'},
