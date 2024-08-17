@@ -3,15 +3,12 @@ import litellm
 from litellm import completion_cost
 import instructor
 import logging
-from logging import StreamHandler, FileHandler
 import os
 from typing import List, Dict
 from tavily import TavilyClient
 from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_END_OF_PROMPT
-from model_config import MODEL, MODEL_NAME, TEMPERATURE, TOP_P, FREQUENCY_PENALTY, PRESENCE_PENALTY, REQUIRED_ENV
-
-# Set DEBUG_MODE
-DEBUG_MODE = False
+from model_config import MODEL, MODEL_NAME, TEMPERATURE, TOP_P, FREQUENCY_PENALTY, PRESENCE_PENALTY
+from config import setup_environment, setup_logging, DEBUG_MODE
 
 st.set_page_config(page_title="JN test - Company Analysis Workflow")
 st.title("JN test - Company Analysis Workflow")
@@ -26,36 +23,9 @@ if 'final_summary' not in st.session_state:
 if 'model_response' not in st.session_state:
     st.session_state.model_response = ""
 
-## Configure logging
-# Remove any existing handlers from the root logger
-for handler in logging.root.handlers[:]:
-    logging.root.removeHandler(handler)
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', handlers=[])
-logger = logging.getLogger()
-# File handler
-file_handler = logging.FileHandler('llm_qa.log')
-file_handler.setLevel(logging.INFO)
-file_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
-logger.addHandler(file_handler)
-# Stream handler for console output
-stream_handler = StreamHandler()
-stream_handler.setLevel(logging.INFO)
-stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
-logger.addHandler(stream_handler)
-
-if DEBUG_MODE:
-    os.environ['LITELLM_LOG'] = 'DEBUG'
-
-# Set up API keys and credentials
-for key in REQUIRED_ENV:
-    value = os.environ.get(key)
-    if value is None:
-        try:
-            value = st.secrets.get(key)
-        except FileNotFoundError:
-            st.error(f"Secret '{key}' not found. Please set it as an environment variable, in a secrets.toml file or in the Streamlit console.")
-            continue
-    os.environ[key] = value
+# Setup environment and logging
+setup_environment()
+setup_logging()
 
 instructorlitellm_client = instructor.from_litellm(litellm.completion)
 try:
