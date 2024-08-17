@@ -60,23 +60,24 @@ col1, col2 = st.columns(2)
 col1.button("Analyze Company", on_click=analyze_company_callback, use_container_width=True)
 col2.button("Summarize", on_click=summarize_callback, use_container_width=True)
 
-# Display step results
-for i, step in enumerate(WORKFLOW_STEPS):
+# Function to create display step functions
+def create_display_step_function(step_index):
     @st.fragment
-    def display_step_i():
+    def display_step():
         col1, col2 = st.columns([3, 1])
         with col1:
-            st.subheader(WORKFLOW_STEPS[i]["step_name"])
+            st.subheader(WORKFLOW_STEPS[step_index]["step_name"])
         with col2:
-            st.button("Run Step", key=f"run_step_{i}", on_click=run_step_callback, args=(i,), use_container_width=True)
+            st.button("Run Step", key=f"run_step_{step_index}", on_click=run_step_callback, args=(step_index,), use_container_width=True)
         
-        st.text_area("", value=st.session_state.step_results[i], height=150, key=f"step_{i}")
+        st.text_area("", value=st.session_state.step_results[step_index], height=150, key=f"step_{step_index}")
+    
+    return display_step
 
-    # Rename the function to include the step index
-    display_step_i.__name__ = f'display_step_{i}'
-    # Call the function
-    globals()[f'display_step_{i}'] = display_step_i
-    globals()[f'display_step_{i}']()
+# Display step results
+for i in range(len(WORKFLOW_STEPS)):
+    display_step_func = create_display_step_function(i)
+    display_step_func()
 
 # Display final summary
 @st.fragment
