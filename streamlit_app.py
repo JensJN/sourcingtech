@@ -12,9 +12,14 @@ from model_config import MODEL, MODEL_NAME, TEMPERATURE, TOP_P, FREQUENCY_PENALT
 from env_setup import setup_environment
 
 async def main():
-
     # Set DEBUG_MODE
     DEBUG_MODE = True
+
+    if DEBUG_MODE:
+        os.environ['LITELLM_LOG'] = 'DEBUG'
+
+    # Set up API keys and credentials
+    setup_environment()
 
     st.set_page_config(page_title="JN test - Company Analysis Workflow")
     st.title("JN test - Company Analysis Workflow")
@@ -28,12 +33,6 @@ async def main():
         st.session_state.final_summary = ""
     if 'model_response' not in st.session_state:
         st.session_state.model_response = ""
-
-    if DEBUG_MODE:
-        os.environ['LITELLM_LOG'] = 'DEBUG'
-
-    # Set up API keys and credentials
-    setup_environment()
 
     instructorlitellm_client = instructor.from_litellm(litellm.completion)
     try:
