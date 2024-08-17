@@ -5,12 +5,10 @@ from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_
 from env_config import setup_environment, setup_logging
 from utils import prompt_model, run_step, initialize_clients
 
-# Setup environment and logging
+# Setup environment and logging, initialize clients
 DEBUG_MODE = True # Set DEBUG_MODE = False unless debugging for dev
 setup_environment()
 setup_logging(DEBUG_MODE)
-
-# Initialize clients
 initialize_clients()
 
 st.set_page_config(page_title="JN test - Company Analysis Workflow")
