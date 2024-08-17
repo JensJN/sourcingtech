@@ -63,16 +63,20 @@ col2.button("Summarize", on_click=summarize_callback, use_container_width=True)
 # Display step results
 for i, step in enumerate(WORKFLOW_STEPS):
     @st.fragment
-    def display_step(step_index=i):
+    def display_step_i():
         col1, col2 = st.columns([3, 1])
         with col1:
-            st.subheader(WORKFLOW_STEPS[step_index]["step_name"])
+            st.subheader(WORKFLOW_STEPS[i]["step_name"])
         with col2:
-            st.button("Run Step", key=f"run_step_{step_index}", on_click=run_step_callback, args=(step_index,), use_container_width=True)
+            st.button("Run Step", key=f"run_step_{i}", on_click=run_step_callback, args=(i,), use_container_width=True)
         
-        st.text_area("", value=st.session_state.step_results[step_index], height=150, key=f"step_{step_index}")
+        st.text_area("", value=st.session_state.step_results[i], height=150, key=f"step_{i}")
 
-    display_step()
+    # Rename the function to include the step index
+    display_step_i.__name__ = f'display_step_{i}'
+    # Call the function
+    globals()[f'display_step_{i}'] = display_step_i
+    globals()[f'display_step_{i}']()
 
 # Display final summary
 @st.fragment
