@@ -104,19 +104,17 @@ if DEBUG_MODE:
 
 @st.fragment(run_every=1.0 if get_is_analysis_running() else None)
 def display_analyze_company():
-    is_any_process_running = get_is_any_process_running()
     # Check if summary is queued and no process is running
-    if not is_any_process_running and st.session_state.summary_queued:
+    if not get_is_any_process_running() and st.session_state.summary_queued:
         run_summary_helper()
         st.session_state.summary_queued = False
-        st.rerun() #required to start run_every for summary fragment
     # Input for company URL
     st.session_state.company_url = st.text_input("Enter company URL:", 
                                                  value=st.session_state.company_url, 
-                                                 disabled=is_any_process_running)
+                                                 disabled=get_is_any_process_running())
 
     button_text = "Analyze Company"
-    if is_any_process_running:
+    if get_is_any_process_running():
         running_steps = [i for i, running in enumerate(st.session_state.is_step_running) if running]
         if running_steps:
             step_index = running_steps[0]
@@ -126,7 +124,7 @@ def display_analyze_company():
             elapsed_time = int(time.time() - st.session_state.summary_start_time)
             button_text = f"Running Summary... {elapsed_time}s"
 
-    if st.button(button_text, use_container_width=True, disabled=is_any_process_running):
+    if st.button(button_text, use_container_width=True, disabled=get_is_any_process_running()):
         if st.session_state.company_url:
             for i in range(len(WORKFLOW_STEPS)):
                 run_step_helper(i)
@@ -139,7 +137,7 @@ display_analyze_company()
 
 # Function to create display step functions
 def create_display_step_function(step_index):
-    @st.fragment(run_every=1.0 if st.session_state.is_step_running[step_index] else None)
+    @st.fragment(run_every=1.0 if (st.session_state.is_step_running[step_index] or get_is_analysis_running()) else None)
     def display_step():
         # global rerun is required to reset run_every when all are done
         if st.session_state.is_step_done[step_index] and not (get_is_any_process_running() or get_is_analysis_running()):
@@ -177,7 +175,7 @@ for i in range(len(WORKFLOW_STEPS)):
     globals()[f'display_step_{i}']()
 
 # Display final summary
-@st.fragment(run_every=1.0 if st.session_state.is_summary_running else None)
+@st.fragment(run_every=1.0 if (st.session_state.is_summary_running or get_is_analysis_running()) else None)
 def display_summary():
     # global rerun is required to reset run_every when all are done 
     if st.session_state.is_summary_done and not (get_is_any_process_running() or get_is_analysis_running()):
