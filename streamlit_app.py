@@ -1,5 +1,5 @@
 import streamlit as st
-from typing import List
+from typing import List, Callable
 import threading
 import time
 from streamlit.runtime.scriptrunner import add_script_run_ctx
@@ -8,11 +8,11 @@ from env_config import setup_environment, setup_logging
 from utils import prompt_model, run_step, initialize_clients
 
 # Setup environment and logging, initialize clients
-DEBUG_MODE = True # Set DEBUG_MODE = False unless debugging for dev
+DEBUG_MODE = True # remember to set DEBUG_MODE = False before deploying
 setup_environment()
 setup_logging(debug_mode=DEBUG_MODE)
 import logging
-initialize_clients(mock_clients=True)
+initialize_clients(mock_clients=True) # DEBUG; remember to disable before deploying
 
 st.set_page_config(page_title="JN test - Company Analysis Workflow")
 st.title("JN test - Company Analysis Workflow")
@@ -39,6 +39,56 @@ if 'is_step_done' not in st.session_state:
 if 'is_summary_done' not in st.session_state:
     st.session_state.is_summary_done = False
 
+def run_step_helper(step_index: int, work_function: Callable):
+    if st.session_state.company_url:
+        st.session_state.is_step_running[step_index] = True
+        st.session_state.step_start_time[step_index] = time.time()
+        
+        def work_process():
+            try:
+                result = work_function()
+                st.session_state.step_results[step_index] = result
+            except Exception as e:
+                logging.error(f"Error in step {step_index}: {str(e)}")
+                st.session_state.step_results[step_index] = f"Error occurred during step {step_index}."
+            finally:
+                st.session_state.is_step_running[step_index] = False
+                st.session_state.step_start_time[step_index] = None
+                st.session_state.is_step_done[step_index] = True
+                logging.info(f"Step {step_index} work process completed")
+
+        thread = threading.Thread(target=work_process, daemon=True)
+        add_script_run_ctx(thread)
+        thread.start()
+        st.rerun()  # required to start run_every
+    else:
+        st.error("Please enter a company URL.")
+
+def run_summary_helper():
+    if any(st.session_state.step_results):
+        st.session_state.is_summary_running = True
+        st.session_state.summary_start_time = time.time()
+        summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
+        def work_process():
+            try:
+                result = prompt_model(summary_prompt)
+                st.session_state.summary_result = result
+            except Exception as e:
+                logging.error(f"Error in summary generation: {str(e)}")
+                st.session_state.summary_result = "Error occurred during summary generation."
+            finally:
+                st.session_state.is_summary_running = False
+                st.session_state.summary_start_time = None
+                st.session_state.is_summary_done = True
+                logging.info("Summary work process completed")
+
+        thread = threading.Thread(target=work_process, daemon=True)
+        add_script_run_ctx(thread)
+        thread.start()
+        st.rerun() #required to start run_every
+    else:
+        st.error("Please analyze the company first.")
+
 ## Button to identify the model (only shown in debug mode)
 if DEBUG_MODE:
     col1, col2 = st.columns(2)
@@ -52,11 +102,9 @@ st.session_state.company_url = st.text_input("Enter company URL:", value=st.sess
 def analyze_company_callback():
     if st.session_state.company_url:
         for i, step in enumerate(WORKFLOW_STEPS):
-            result = run_step(step, st.session_state.company_url)
-            st.session_state.step_results[i] = result
+            run_step_helper(i, lambda: run_step(step, st.session_state.company_url))
     else:
         st.error("Please enter a company URL.")
-
 
 col1, _ = st.columns(2)
 
@@ -87,35 +135,13 @@ def create_display_step_function(step_index):
                 disabled=st.session_state.is_step_running[step_index],
                 use_container_width=True
             ):
-                if st.session_state.company_url:
-                    st.session_state.is_step_running[step_index] = True
-                    st.session_state.step_start_time[step_index] = time.time()
-                    
-                    def work_process():
-                        try:
-                            result = run_step(WORKFLOW_STEPS[step_index], st.session_state.company_url)
-                            st.session_state.step_results[step_index] = result
-                        except Exception as e:
-                            logging.error(f"Error in step {step_index}: {str(e)}")
-                            st.session_state.step_results[step_index] = f"Error occurred during step {step_index}."
-                        finally:
-                            st.session_state.is_step_running[step_index] = False
-                            st.session_state.step_start_time[step_index] = None
-                            st.session_state.is_step_done[step_index] = True
-                            logging.info(f"Step {step_index} work process completed")
-
-                    thread = threading.Thread(target=work_process, daemon=True)
-                    add_script_run_ctx(thread)
-                    thread.start()
-                    st.rerun() #required to start run_every
-                else:
-                    st.error("Please enter a company URL.")
+                run_step_helper(step_index, lambda: run_step(WORKFLOW_STEPS[step_index], st.session_state.company_url))
         
         st.text_area("", value=st.session_state.step_results[step_index], height=150, key=f"step_{step_index}")
 
     return display_step
 
-# Display step results
+# Display step results; this two-step process is required to make @st.fragment or other decoration work
 for i in range(len(WORKFLOW_STEPS)):
     display_step_func = create_display_step_function(i)
     # Register the function as a global
@@ -144,30 +170,7 @@ def display_summary():
             disabled=st.session_state.is_summary_running,
             use_container_width=True
         ):
-            if any(st.session_state.step_results):
-                st.session_state.is_summary_running = True
-                st.session_state.summary_start_time = time.time()
-                
-                def work_process():
-                    try:
-                        summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
-                        result = prompt_model(summary_prompt)
-                        st.session_state.summary_result = result
-                    except Exception as e:
-                        logging.error(f"Error in summary generation: {str(e)}")
-                        st.session_state.summary_result = "Error occurred during summary generation."
-                    finally:
-                        st.session_state.is_summary_running = False
-                        st.session_state.summary_start_time = None
-                        st.session_state.is_summary_done = True
-                        logging.info("Summary work process completed")
-
-                thread = threading.Thread(target=work_process, daemon=True)
-                add_script_run_ctx(thread)
-                thread.start()
-                st.rerun() #required to start run_every
-            else:
-                st.error("Please analyze the company first.")
+            run_summary_helper()
     st.text_area("", value=st.session_state.summary_result, height=200, key="final_summary")
 
 display_summary()
