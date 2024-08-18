@@ -353,9 +353,12 @@ def generate_pdf():
 st.write("")
 if st.button("Generate PDF", use_container_width=True):
     pdf = generate_pdf()
-    b64 = base64.b64encode(pdf.getvalue()).decode()
-    href = f'<a href="data:application/pdf;base64,{b64}" download="company_analysis.pdf">Click here to download the PDF</a>'
-    st.markdown(href, unsafe_allow_html=True)
+    st.download_button(
+        label="Download PDF",
+        data=pdf,
+        file_name="company_analysis.pdf",
+        mime="application/pdf",
+    )
 
 # invisible fragment to trigger global rerun to reset all fragments' run_every once nothing is running anymore; should always stay at end of file
 @st.fragment(run_every=1.0 if (get_is_any_process_running() or get_is_analysis_running()) else None)
