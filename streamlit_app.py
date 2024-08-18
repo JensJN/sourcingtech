@@ -51,7 +51,8 @@ def get_is_anything_marked_done():
     return st.session_state.is_summary_done or any(st.session_state.is_step_done)
 
 def set_mark_all_done():
-    
+    st.session_state.is_summary_done = False
+    st.session_state.is_step_done = [False] * len(WORKFLOW_STEPS)
 
 def run_step_helper(step_index: int):
     if st.session_state.company_url:
