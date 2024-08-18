@@ -98,7 +98,7 @@ if DEBUG_MODE:
 is_any_process_running = any(st.session_state.is_step_running) or st.session_state.is_summary_running
 
 @st.fragment(run_every=1.0 if is_any_process_running else None)
-def display_analyze_company_button():
+def display_analyze_company():
     is_any_process_running = any(st.session_state.is_step_running) or st.session_state.is_summary_running
     # Input for company URL
     st.session_state.company_url = st.text_input("Enter company URL:", 
@@ -124,7 +124,7 @@ def display_analyze_company_button():
         else:
             st.error("Please enter a company URL.")
 
-display_analyze_company_button()
+display_analyze_company()
 
 # Function to create display step functions
 def create_display_step_function(step_index):
