@@ -122,7 +122,6 @@ def run_summary_helper():
                 st.session_state.is_summary_running = False
                 st.session_state.summary_start_time = None
                 st.session_state.is_summary_done = True
-                st.session_state.refine_queued = True
                 logging.info("Summary work process completed")
 
         thread = threading.Thread(target=work_process, daemon=True)
@@ -168,7 +167,8 @@ def display_analyze_company():
     # Check if summary is queued and no process is running
     if not get_is_any_process_running() and st.session_state.summary_queued:
         run_summary_helper()
-        st.session_state.summary_queued = False
+        st.session_state.refine_queued = True  # Queue refine step after summary is completed 
+        st.session_state.summary_queued = False # Do after queuing in case of rerun race gone wrong
     # Check if refine is queued and no process is running
     elif not get_is_any_process_running() and st.session_state.refine_queued:
         run_refine_helper()
