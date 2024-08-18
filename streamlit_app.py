@@ -350,6 +350,7 @@ def generate_pdf():
     return pdf_file
 
 # Add Download PDF button
+st.write("")
 if st.button("Generate PDF"):
     pdf = generate_pdf()
     b64 = base64.b64encode(pdf.getvalue()).decode()
