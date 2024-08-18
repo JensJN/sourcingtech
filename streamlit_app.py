@@ -7,7 +7,7 @@ from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_
 from env_config import setup_environment, setup_logging
 from utils import prompt_model, run_step, initialize_clients
 
-# Setup environment and logging, initialize clients
+# Setup environment and logging, initialize clients, setup cache for slow/expensive functions
 DEBUG_MODE = True # remember to set DEBUG_MODE = False before deploying
 setup_environment()
 setup_logging(debug_mode=DEBUG_MODE)
