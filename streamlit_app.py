@@ -14,14 +14,6 @@ setup_logging(debug_mode=DEBUG_MODE)
 import logging
 initialize_clients(mock_clients=True) # DEBUG; remember to disable before deploying
 
-@st.cache_data
-def cached_prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, **kwargs):
-    return prompt_model(prompt, max_tokens, role, response_model, **kwargs)
-
-@st.cache_data
-def cached_run_step(step: dict, company_url: str):
-    return run_step(step, company_url)
-
 st.set_page_config(page_title="JN test - Company Analysis Workflow")
 st.title("JN test - Company Analysis Workflow")
 
@@ -61,6 +53,14 @@ def get_is_anything_marked_done():
 def set_everthing_not_done():
     st.session_state.is_summary_done = False
     st.session_state.is_step_done = [False] * len(WORKFLOW_STEPS)
+
+@st.cache_data
+def cached_prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, **kwargs):
+    return prompt_model(prompt, max_tokens, role, response_model, **kwargs)
+
+@st.cache_data
+def cached_run_step(step: dict, company_url: str):
+    return run_step(step, company_url)
 
 def run_step_helper(step_index: int):
     if st.session_state.company_url:
