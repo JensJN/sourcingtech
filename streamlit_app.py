@@ -105,10 +105,9 @@ def display_analyze_company():
     is_any_process_running = any(st.session_state.is_step_running) or st.session_state.is_summary_running
     # Check if summary is queued and no process is running
     if not is_any_process_running and st.session_state.summary_queued:
-        run_summary_helper()
         st.session_state.summary_queued = False
-        is_any_process_running = True
-        #st.rerun() ### CHECK WHETHER REQUIRED OR REMOVE TO DO XX
+        run_summary_helper()
+        st.rerun() #required to start run_every for summary fragment
     # Input for company URL
     st.session_state.company_url = st.text_input("Enter company URL:", 
                                                  value=st.session_state.company_url, 
@@ -130,7 +129,7 @@ def display_analyze_company():
             for i in range(len(WORKFLOW_STEPS)):
                 run_step_helper(i)
             st.session_state.summary_queued = True
-            st.rerun() #required to start run_every for fragment
+            st.rerun() #required to start run_every for fragments
         else:
             st.error("Please enter a company URL.")
 
