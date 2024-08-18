@@ -60,7 +60,6 @@ def run_step_helper(step_index: int):
         thread = threading.Thread(target=work_process, daemon=True)
         add_script_run_ctx(thread)
         thread.start()
-        st.rerun()  # required to start run_every
     else:
         st.error("Please enter a company URL.")
 
@@ -85,7 +84,6 @@ def run_summary_helper():
         thread = threading.Thread(target=work_process, daemon=True)
         add_script_run_ctx(thread)
         thread.start()
-        st.rerun() #required to start run_every
     else:
         st.error("Please analyze the company first.")
 
@@ -136,6 +134,7 @@ def create_display_step_function(step_index):
                 use_container_width=True
             ):
                 run_step_helper(step_index)
+                st.rerun() #required to start run_every for fragment
         
         st.text_area("", value=st.session_state.step_results[step_index], height=150, key=f"step_{step_index}")
 
@@ -171,6 +170,7 @@ def display_summary():
             use_container_width=True
         ):
             run_summary_helper()
+            st.rerun() #required to start run_every for fragment
     st.text_area("", value=st.session_state.summary_result, height=200, key="final_summary")
 
 display_summary()
