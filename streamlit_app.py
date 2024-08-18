@@ -48,7 +48,7 @@ def get_is_analysis_running():
     return get_is_any_process_running() or st.session_state.summary_queued
 
 def get_is_anything_marked_done():
-    return False
+    return st.session_state.is_summary_done or any(st.session_state.is_step_done)
 
 def run_step_helper(step_index: int):
     if st.session_state.company_url:
