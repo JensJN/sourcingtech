@@ -1,5 +1,5 @@
 import streamlit as st
-from typing import List
+from typing import List, Callable
 import threading
 import time
 from streamlit.runtime.scriptrunner import add_script_run_ctx
@@ -39,6 +39,31 @@ if 'is_step_done' not in st.session_state:
 if 'is_summary_done' not in st.session_state:
     st.session_state.is_summary_done = False
 
+def run_step_helper(step_index: int, work_function: Callable):
+    if st.session_state.company_url:
+        st.session_state.is_step_running[step_index] = True
+        st.session_state.step_start_time[step_index] = time.time()
+        
+        def work_process():
+            try:
+                result = work_function()
+                st.session_state.step_results[step_index] = result
+            except Exception as e:
+                logging.error(f"Error in step {step_index}: {str(e)}")
+                st.session_state.step_results[step_index] = f"Error occurred during step {step_index}."
+            finally:
+                st.session_state.is_step_running[step_index] = False
+                st.session_state.step_start_time[step_index] = None
+                st.session_state.is_step_done[step_index] = True
+                logging.info(f"Step {step_index} work process completed")
+
+        thread = threading.Thread(target=work_process, daemon=True)
+        add_script_run_ctx(thread)
+        thread.start()
+        st.rerun()  # required to start run_every
+    else:
+        st.error("Please enter a company URL.")
+
 ## Button to identify the model (only shown in debug mode)
 if DEBUG_MODE:
     col1, col2 = st.columns(2)
@@ -52,11 +77,9 @@ st.session_state.company_url = st.text_input("Enter company URL:", value=st.sess
 def analyze_company_callback():
     if st.session_state.company_url:
         for i, step in enumerate(WORKFLOW_STEPS):
-            result = run_step(step, st.session_state.company_url)
-            st.session_state.step_results[i] = result
+            run_step_helper(i, lambda: run_step(step, st.session_state.company_url))
     else:
         st.error("Please enter a company URL.")
-
 
 col1, _ = st.columns(2)
 
@@ -87,29 +110,7 @@ def create_display_step_function(step_index):
                 disabled=st.session_state.is_step_running[step_index],
                 use_container_width=True
             ):
-                if st.session_state.company_url:
-                    st.session_state.is_step_running[step_index] = True
-                    st.session_state.step_start_time[step_index] = time.time()
-                    
-                    def work_process():
-                        try:
-                            result = run_step(WORKFLOW_STEPS[step_index], st.session_state.company_url)
-                            st.session_state.step_results[step_index] = result
-                        except Exception as e:
-                            logging.error(f"Error in step {step_index}: {str(e)}")
-                            st.session_state.step_results[step_index] = f"Error occurred during step {step_index}."
-                        finally:
-                            st.session_state.is_step_running[step_index] = False
-                            st.session_state.step_start_time[step_index] = None
-                            st.session_state.is_step_done[step_index] = True
-                            logging.info(f"Step {step_index} work process completed")
-
-                    thread = threading.Thread(target=work_process, daemon=True)
-                    add_script_run_ctx(thread)
-                    thread.start()
-                    st.rerun() #required to start run_every
-                else:
-                    st.error("Please enter a company URL.")
+                run_step_helper(step_index, lambda: run_step(WORKFLOW_STEPS[step_index], st.session_state.company_url))
         
         st.text_area("", value=st.session_state.step_results[step_index], height=150, key=f"step_{step_index}")
 
