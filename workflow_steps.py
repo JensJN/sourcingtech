@@ -81,10 +81,10 @@ REFINE_PROMPT = """Objective: you're trying to get in touch with the founder and
         - Tone: conversational, direct, to the point.
         - Language/vocabulary: mature, factual, analytical, no flattery, not sales-y, simple language.
         - Do not use flowery language: innovative, revolutationary, rapid growth, market validation, underscores, relevance, rapidly, robust, aligns, recognition, noteworthy, demonstrates, critical, overlooked, crucial;
-          instead of such flowerly language, prefer straight-forward language (important, nice, good, strong, differentiated, seems/sounds like, makes sense, great to see/hear, etc.).
-        - Prefer language such as 'I like company_name's xyz' or 'I like the xyz' to 'your xyz'.
-        - Don't speak about the company or founder in third-person (their, its, his, her, etc.).
-        - Don't point out obvious things or lecture; you did your research but this is only your initial interpretation of things and you'd love to learn more.
+          instead of such flowerly language, prefer straight-forward language (important, nice, good, strong, differentiated, seems/sounds/feels like, makes sense, great to see, congrats on, I saw, etc.).
+        - Prefer language such as 'I like company_name's xyz' or 'I like the xyz' or 'I saw xyz' to 'your xyz'.
+        - Remember you're emailing the founder/CEO so don't speak about them in third-person (don't use: their, its, his, her, etc.).
+        - Don't point out obvious things or lecture; remember while you did your research this is only your initial interpretation of things.
         - Start with 'I've recently come across company_name'
 
         You've now been given the below information on the company:

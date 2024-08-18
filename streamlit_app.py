@@ -272,7 +272,7 @@ def display_summary():
                 error_message = "No results to analyze."
     
     if error_message: st.error(error_message) # used to print below column, not in column
-    st.text_area("Output:", value=st.session_state.summary_result, height=200, key="final_summary")
+    st.text_area("Output:", value=st.session_state.summary_result, height=400, key="final_summary")
 
 display_summary()
 
@@ -303,7 +303,7 @@ def display_draft_email():
                 error_message = "No summary to draft email from."
     
     if error_message: st.error(error_message) # used to print below column, not in column
-    st.text_area("Output:", value=st.session_state.draft_email_result, height=200, key="draft_email")
+    st.text_area("Output:", value=st.session_state.draft_email_result, height=400, key="draft_email")
 
 display_draft_email()
 
