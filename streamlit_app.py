@@ -50,7 +50,7 @@ def get_is_analysis_running():
 def get_is_anything_marked_done():
     return st.session_state.is_summary_done or any(st.session_state.is_step_done)
 
-def set_mark_all_done():
+def set_everthing_not_done():
     st.session_state.is_summary_done = False
     st.session_state.is_step_done = [False] * len(WORKFLOW_STEPS)
 
@@ -229,6 +229,6 @@ display_summary()
 def invisible_fragment_to_rerun_when_all_done():
     #trigger rerun if any steps are marked done and nothing is running anymore
     if get_is_anything_marked_done() and not (get_is_any_process_running() or get_is_analysis_running()):
-        set_mark_all_done()
+        set_everthing_not_done()
         st.rerun()
 invisible_fragment_to_rerun_when_all_done()
