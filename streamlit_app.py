@@ -44,6 +44,9 @@ if 'summary_queued' not in st.session_state:
 def get_is_any_process_running():
     return any(st.session_state.is_step_running) or st.session_state.is_summary_running
 
+def get_is_analysis_running():
+    return get_is_any_process_running() or st.session_state.summary_queued
+
 def run_step_helper(step_index: int):
     if st.session_state.company_url:
         st.session_state.is_step_running[step_index] = True
@@ -101,7 +104,7 @@ if DEBUG_MODE:
 
 # determine if any process is running - need this globally here and within the self-refreshing fragments
 is_any_process_running_global = get_is_any_process_running()
-is_analysis_running_global = is_any_process_running_global or st.session_state.summary_queued
+is_analysis_running_global = get_is_analysis_running()
 
 @st.fragment(run_every=1.0 if is_analysis_running_global else None)
 def display_analyze_company():
