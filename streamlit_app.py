@@ -97,12 +97,30 @@ if DEBUG_MODE:
 # Input for company URL
 st.session_state.company_url = st.text_input("Enter company URL:", value=st.session_state.company_url)
 
-if st.button("Analyze Company", use_container_width=True):
-    if st.session_state.company_url:
-        for i in range(len(WORKFLOW_STEPS)):
-            run_step_helper(i)
-    else:
-        st.error("Please enter a company URL.")
+# Determine if any step or summary is running
+is_any_process_running = any(st.session_state.is_step_running) or st.session_state.is_summary_running
+
+@st.fragment(run_every=1.0 if is_any_process_running else None)
+def display_analyze_company_button():
+    button_text = "Analyze Company"
+    if is_any_process_running:
+        running_steps = [i for i, running in enumerate(st.session_state.is_step_running) if running]
+        if running_steps:
+            step_index = running_steps[0]
+            elapsed_time = int(time.time() - st.session_state.step_start_time[step_index])
+            button_text = f"Running Step {step_index + 1}... {elapsed_time}s"
+        elif st.session_state.is_summary_running:
+            elapsed_time = int(time.time() - st.session_state.summary_start_time)
+            button_text = f"Running Summary... {elapsed_time}s"
+
+    if st.button(button_text, use_container_width=True, disabled=is_any_process_running):
+        if st.session_state.company_url:
+            for i in range(len(WORKFLOW_STEPS)):
+                run_step_helper(i)
+        else:
+            st.error("Please enter a company URL.")
+
+display_analyze_company_button()
 
 # Function to create display step functions
 def create_display_step_function(step_index):
