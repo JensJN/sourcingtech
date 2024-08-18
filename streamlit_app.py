@@ -107,7 +107,8 @@ def display_analyze_company():
     if not is_any_process_running and st.session_state.summary_queued:
         run_summary_helper()
         st.session_state.summary_queued = False
-        st.rerun()
+        is_any_process_running = True
+        #st.rerun() ### CHECK WHETHER REQUIRED OR REMOVE TO DO XX
     # Input for company URL
     st.session_state.company_url = st.text_input("Enter company URL:", 
                                                  value=st.session_state.company_url, 
