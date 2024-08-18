@@ -104,9 +104,7 @@ def analyze_company_callback():
     else:
         st.error("Please enter a company URL.")
 
-col1, _ = st.columns(2)
-
-col1.button("Analyze Company", on_click=analyze_company_callback, use_container_width=True)
+st.button("Analyze Company", on_click=analyze_company_callback, use_container_width=True)
 
 # Function to create display step functions
 def create_display_step_function(step_index):
