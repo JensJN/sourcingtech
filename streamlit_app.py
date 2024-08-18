@@ -98,7 +98,7 @@ if DEBUG_MODE:
 
 # determine if any process is running - need this globally here and within the self-refreshing fragments
 is_any_process_running_global = any(st.session_state.is_step_running) or st.session_state.is_summary_running
-is_analysis_running_global = is_any_process_running_global or ### AIDER add the state var summary_queued here ###
+is_analysis_running_global = is_any_process_running_global or st.session_state.summary_queued
 
 @st.fragment(run_every=1.0 if is_analysis_running_global else None)
 def display_analyze_company():
