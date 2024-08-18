@@ -55,13 +55,15 @@ def set_everthing_not_done():
     st.session_state.is_summary_done = False
     st.session_state.is_step_done = [False] * len(WORKFLOW_STEPS)
 
-@st.cache_data
+#@st.cache_data # bug in streamlit 1.37 causes cached functions to not be thread safe (https://github.com/streamlit/streamlit/issues/9260)
 def cached_prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, **kwargs):
-    return prompt_model(prompt, max_tokens, role, response_model, **kwargs)
+    returnval = prompt_model(prompt, max_tokens, role, response_model, **kwargs)
+    return returnval
 
-@st.cache_data
+#@st.cache_data# bug in streamlit 1.37 causes cached functions to not be thread safe (https://github.com/streamlit/streamlit/issues/9260)
 def cached_run_step(step: dict, company_url: str):
-    return run_step(step, company_url)
+    returnval = run_step(step, company_url)
+    return returnval
 
 def run_step_helper(step_index: int):
     if st.session_state.company_url:
