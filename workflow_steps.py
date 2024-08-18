@@ -34,7 +34,55 @@ WORKFLOW_STEPS = [
         "search_query": "{company_url} recent news announcements partnerships product launches achievements",
         "prompt_to_analyse": "Summarize the most significant recent news articles about the company, focusing on major announcements, partnerships, product launches, or achievements from the past 3 months.",
         "include_domains": ["{company_url}", "techcrunch.com", "crunchbase.com", "businesswire.com", "prnewswire.com"]
-    },
+    }
+]
+
+SUMMARY_BEGINNING_OF_PROMPT = """You're an analyst and think step-by-step.
+        
+        Task: you'll be given information about a company to extract key insights from and to summarize:
+        - what the company does
+        - what products or services it offers
+        - the market and industry context the company operates in
+        - how the company and its offering differentiates vs. its competitors
+        - what customers are saying about the company and its products
+        - any recent key news or developments around the company
+        
+        Objective: you're doing this for your director who wants to email the founder of this company and impress him with his in-depth knowledge about his business;
+        therefore focus on insights and developments that an industry expert would pick up on.
+        
+        You've now been given the below information:
+        \n**********"""
+
+SUMMARY_END_OF_PROMPT = """\n**********\n
+        Remember your task and objective.
+        """
+
+REFINE_PROMPT = """Objective: you're trying to get in touch with the founder and CEO of a company.
+        You therefore need to write an email that demonstrates your in-depth knowledge about their business and industry.
+        
+        Task: write an email based on the information you'll be given.
+        Only provide the email body; no greeting, no sign-off, nothing else.
+        
+        Content: should vary depending on the information you're given on this particular company; 
+        select any themes that particularly stand out from the information, for example:
+        - why the company's offering and product is a great idea
+        - how the company offering differentiates from others' in the market
+        - what's to like about this market (but don't cite any specific market figures)
+        - any particularly positive customer feedback
+        - any important more nuanced insights about the company, its market position or relevant industry trend
+        - particularly noteworthy recent developments or achievements (very important if any)
+
+        It's important that you phrase this as follows:
+        - Length: concise; max. 3 short paragraphs.
+        - Tone: conversational but direct and to the point.
+        - Language: mature, factual, analytical, no flattery, not sales-y.
+
+        You've now been given the below information on the company:
+        \n**********\n"""
+
+
+## Archive/unused
+UNUSED_STEPS = [
     {
         "step_name": "Funding History",
         "search_query": "{company_url} funding rounds investment series total raised investors",
@@ -43,24 +91,7 @@ WORKFLOW_STEPS = [
     }
 ]
 
-SUMMARY_BEGINNING_OF_PROMPT = """I'm a VC. I want to draft an email to an entrepreneur that conveys that I'm knowledgeable about:
-        - his business
-        - the market and industry context his business operates in
-        - how his business differentiates vs. its competitors
-        - what customers are saying about his business
-        - any recent news or key developments around his business I might congratulate him on
-        I'll write greeting and sign-off separately; only provide email body to copy/paste, nothing else.
-        Use the following information about the company:
-        \n**********"""
-
-SUMMARY_END_OF_PROMPT = """\n**********\n
-        For drafting the email body, it's important that you write it as follows:
-        - Length: concise; max. 3 short paragraphs.
-        - Tone: conversational, direct, to the point.
-        - Language: factual, analytical, no flattery.
-        """
-
-REFINE_PROMPT = """Based on the summary provided, please refine and enhance the content to create a more polished and professional version. Focus on the following aspects:
+REFINE_PROMPT_BCK = """Based on the summary provided, please refine and enhance the content to create a more polished and professional version. Focus on the following aspects:
 1. Improve the structure and flow of the information.
 2. Ensure all key points are clearly articulated and logically connected.
 3. Highlight the most important insights about the company, its market position, and recent developments.
@@ -68,7 +99,8 @@ REFINE_PROMPT = """Based on the summary provided, please refine and enhance the 
 5. Maintain a professional and objective tone throughout.
 Please provide the refined version, keeping it concise and impactful."""
 
-# For testing purposes
+
+## For testing only
 TEST_ONLY = False
 
 if TEST_ONLY:
