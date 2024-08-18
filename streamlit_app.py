@@ -94,11 +94,12 @@ if DEBUG_MODE:
         st.session_state.model_response = prompt_model("Which model are you? Answer in format: Using model: Vendor, Model")
     col2.write(f"{st.session_state.model_response}")
 
-# Determine if any step or summary is running
+# determine if any process is running - need this globally here and within the self-refreshing fragments
 is_any_process_running = any(st.session_state.is_step_running) or st.session_state.is_summary_running
 
 @st.fragment(run_every=1.0 if is_any_process_running else None)
 def display_analyze_company_button():
+    is_any_process_running = any(st.session_state.is_step_running) or st.session_state.is_summary_running
     # Input for company URL
     st.session_state.company_url = st.text_input("Enter company URL:", 
                                                  value=st.session_state.company_url, 
@@ -131,6 +132,7 @@ def create_display_step_function(step_index):
     @st.fragment(run_every=run_every_this_step)
     def display_step():
         # global rerun is required to reset run_every when all are done
+        is_any_process_running = any(st.session_state.is_step_running) or st.session_state.is_summary_running
         if st.session_state.is_step_done[step_index] and not is_any_process_running:
             st.session_state.is_step_done[step_index] = False
             st.rerun()
@@ -169,6 +171,7 @@ for i in range(len(WORKFLOW_STEPS)):
 @st.fragment(run_every=1.0 if st.session_state.is_summary_running else None)
 def display_summary():
     # global rerun is required to reset run_every when all are done 
+    is_any_process_running = any(st.session_state.is_step_running) or st.session_state.is_summary_running
     if st.session_state.is_summary_done and not is_any_process_running:
         st.session_state.is_summary_done = False
         st.rerun()
