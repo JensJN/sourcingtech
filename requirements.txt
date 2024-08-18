@@ -3,3 +3,4 @@ instructor
 litellm
 tavily-python
 diskcache
+weasyprint

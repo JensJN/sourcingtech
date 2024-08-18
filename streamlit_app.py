@@ -8,6 +8,9 @@ from streamlit.runtime.scriptrunner import add_script_run_ctx
 from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_END_OF_PROMPT, REFINE_PROMPT
 from env_config import setup_environment, setup_logging
 from utils import prompt_model, run_step, initialize_clients
+import base64
+from weasyprint import HTML
+from io import BytesIO
 
 # Setup environment and logging, initialize clients, setup cache for slow/expensive functions
 DEBUG_MODE = False # remember to set DEBUG_MODE = False before deploying
@@ -315,3 +318,49 @@ def invisible_fragment_to_rerun_when_all_done():
         set_everthing_not_done()
         st.rerun()
 invisible_fragment_to_rerun_when_all_done()
+
+def generate_pdf():
+    html_content = f"""
+    <html>
+    <head>
+        <style>
+            body {{ font-family: Arial, sans-serif; }}
+            h1 {{ color: #1E90FF; }}
+            h2 {{ color: #4682B4; }}
+            .section {{ margin-bottom: 20px; }}
+        </style>
+    </head>
+    <body>
+        <h1>Company Analysis Report</h1>
+        
+        <div class="section">
+            <h2>Draft Email</h2>
+            <p>{st.session_state.draft_email_result}</p>
+        </div>
+        
+        <div class="section">
+            <h2>Final Summary</h2>
+            <p>{st.session_state.summary_result}</p>
+        </div>
+        
+        {''.join([f'''
+        <div class="section">
+            <h2>Step {i}: {WORKFLOW_STEPS[i]['step_name']}</h2>
+            <p>{st.session_state.step_results[i]}</p>
+        </div>
+        ''' for i in range(len(WORKFLOW_STEPS))])}
+    </body>
+    </html>
+    """
+    
+    pdf_file = BytesIO()
+    HTML(string=html_content).write_pdf(pdf_file)
+    pdf_file.seek(0)
+    return pdf_file
+
+# Add Download PDF button
+if st.button("Download as PDF"):
+    pdf = generate_pdf()
+    b64 = base64.b64encode(pdf.getvalue()).decode()
+    href = f'<a href="data:application/pdf;base64,{b64}" download="company_analysis.pdf">Click here to download the PDF</a>'
+    st.markdown(href, unsafe_allow_html=True)
