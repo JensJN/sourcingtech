@@ -351,7 +351,7 @@ def generate_pdf():
 
 # Add Download PDF button
 st.write("")
-if st.button("Generate PDF"):
+if st.button("Generate PDF", use_container_width=True):
     pdf = generate_pdf()
     b64 = base64.b64encode(pdf.getvalue()).decode()
     href = f'<a href="data:application/pdf;base64,{b64}" download="company_analysis.pdf">Click here to download the PDF</a>'
