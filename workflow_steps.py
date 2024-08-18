@@ -1,20 +1,3 @@
-SUMMARY_BEGINNING_OF_PROMPT = """I'm a VC. I want to draft an email to an entrepreneur that conveys that I'm knowledgeable about:
-        - his business
-        - the market and industry context his business operates in
-        - how his business differentiates vs. its competitors
-        - what customers are saying about his business
-        - any recent news or key developments around his business I might congratulate him on
-        I'll write greeting and sign-off separately; only provide email body to copy/paste, nothing else.
-        Use the following information about the company:
-        \n**********"""
-
-SUMMARY_END_OF_PROMPT = """\n**********\n
-        For drafting the email body, it's important that you write it as follows:
-        - Length: concise; max. 3 short paragraphs.
-        - Tone: conversational, direct, to the point.
-        - Language: factual, analytical, no flattery.
-        """
-
 WORKFLOW_STEPS = [
     {
         "step_name": "Company Overview",
@@ -60,14 +43,29 @@ WORKFLOW_STEPS = [
     }
 ]
 
-REFINE_PROMPT = """Based on the summary provided, please refine and enhance the content to create a more polished and professional version. Focus on the following aspects:
+SUMMARY_BEGINNING_OF_PROMPT = """I'm a VC. I want to draft an email to an entrepreneur that conveys that I'm knowledgeable about:
+        - his business
+        - the market and industry context his business operates in
+        - how his business differentiates vs. its competitors
+        - what customers are saying about his business
+        - any recent news or key developments around his business I might congratulate him on
+        I'll write greeting and sign-off separately; only provide email body to copy/paste, nothing else.
+        Use the following information about the company:
+        \n**********"""
 
+SUMMARY_END_OF_PROMPT = """\n**********\n
+        For drafting the email body, it's important that you write it as follows:
+        - Length: concise; max. 3 short paragraphs.
+        - Tone: conversational, direct, to the point.
+        - Language: factual, analytical, no flattery.
+        """
+
+REFINE_PROMPT = """Based on the summary provided, please refine and enhance the content to create a more polished and professional version. Focus on the following aspects:
 1. Improve the structure and flow of the information.
 2. Ensure all key points are clearly articulated and logically connected.
 3. Highlight the most important insights about the company, its market position, and recent developments.
 4. Remove any redundant or less relevant information.
 5. Maintain a professional and objective tone throughout.
-
 Please provide the refined version, keeping it concise and impactful."""
 
 # For testing purposes
