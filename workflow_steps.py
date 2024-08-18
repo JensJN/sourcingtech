@@ -60,6 +60,16 @@ WORKFLOW_STEPS = [
     }
 ]
 
+REFINE_PROMPT = """Based on the summary provided, please refine and enhance the content to create a more polished and professional version. Focus on the following aspects:
+
+1. Improve the structure and flow of the information.
+2. Ensure all key points are clearly articulated and logically connected.
+3. Highlight the most important insights about the company, its market position, and recent developments.
+4. Remove any redundant or less relevant information.
+5. Maintain a professional and objective tone throughout.
+
+Please provide the refined version, keeping it concise and impactful."""
+
 # For testing purposes
 TEST_ONLY = False
 

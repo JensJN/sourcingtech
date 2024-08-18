@@ -5,7 +5,7 @@ from typing import List, Callable
 import threading
 import time
 from streamlit.runtime.scriptrunner import add_script_run_ctx
-from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_END_OF_PROMPT
+from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_END_OF_PROMPT, REFINE_PROMPT
 from env_config import setup_environment, setup_logging
 from utils import prompt_model, run_step, initialize_clients
 
@@ -134,7 +134,7 @@ def run_refine_helper():
     if st.session_state.summary_result:
         st.session_state.is_refine_running = True
         st.session_state.refine_start_time = time.time()
-        refine_prompt = "Refine prompt placeholder"  # We'll define this later in workflow_steps.py
+        refine_prompt = REFINE_PROMPT + "\n\nSummary to refine:\n" + st.session_state.summary_result
         def work_process():
             try:
                 result = cached_prompt_model(refine_prompt)
