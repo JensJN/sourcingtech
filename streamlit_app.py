@@ -38,6 +38,8 @@ if 'is_step_done' not in st.session_state:
     st.session_state.is_step_done = [False] * len(WORKFLOW_STEPS)
 if 'is_summary_done' not in st.session_state:
     st.session_state.is_summary_done = False
+if 'summary_queued' not in st.session_state:
+    st.session_state.summary_queued = False
 
 def run_step_helper(step_index: int):
     if st.session_state.company_url:
@@ -121,6 +123,7 @@ def display_analyze_company():
         if st.session_state.company_url:
             for i in range(len(WORKFLOW_STEPS)):
                 run_step_helper(i)
+            st.session_state.summary_queued = True
             st.rerun() #required to start run_every for fragment
         else:
             st.error("Please enter a company URL.")
