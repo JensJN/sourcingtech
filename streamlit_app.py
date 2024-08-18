@@ -131,7 +131,7 @@ def create_display_step_function(step_index):
     @st.fragment(run_every=run_every_this_step)
     def display_step():
         # global rerun is required to reset run_every when all are done
-        if st.session_state.is_step_done[step_index] and not (any(st.session_state.is_step_running) or st.session_state.is_summary_running):
+        if st.session_state.is_step_done[step_index] and not is_any_process_running:
             st.session_state.is_step_done[step_index] = False
             st.rerun()
 
@@ -169,7 +169,7 @@ for i in range(len(WORKFLOW_STEPS)):
 @st.fragment(run_every=1.0 if st.session_state.is_summary_running else None)
 def display_summary():
     # global rerun is required to reset run_every when all are done 
-    if st.session_state.is_summary_done and not (any(st.session_state.is_step_running) or st.session_state.is_summary_running):
+    if st.session_state.is_summary_done and not is_any_process_running:
         st.session_state.is_summary_done = False
         st.rerun()
 
