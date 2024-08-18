@@ -139,6 +139,7 @@ display_analyze_company()
 def create_display_step_function(step_index):
     @st.fragment(run_every=1.0 if (st.session_state.is_step_running[step_index] or get_is_analysis_running()) else None)
     def display_step():
+        error_message = None
         # global rerun is required to reset run_every when all are done
         if st.session_state.is_step_done[step_index] and not (get_is_any_process_running() or get_is_analysis_running()):
             st.session_state.is_step_done[step_index] = False
@@ -163,8 +164,9 @@ def create_display_step_function(step_index):
                     run_step_helper(step_index)
                     st.rerun() #required to start run_every for fragment
                 else:
-                    st.error("Please enter a company URL.")
+                    error_message = "Please enter a company URL."
         
+        if error_message: st.error(error_message) # used to print below column, not in column
         st.text_area("", value=st.session_state.step_results[step_index], height=150, key=f"step_{step_index}")
 
     return display_step
@@ -180,6 +182,7 @@ for i in range(len(WORKFLOW_STEPS)):
 # Display final summary
 @st.fragment(run_every=1.0 if (st.session_state.is_summary_running or get_is_analysis_running()) else None)
 def display_summary():
+    error_message = None
     # global rerun is required to reset run_every when all are done 
     if st.session_state.is_summary_done and not (get_is_any_process_running() or get_is_analysis_running()):
         st.session_state.is_summary_done = False
@@ -202,8 +205,9 @@ def display_summary():
                 run_summary_helper()
                 st.rerun() #required to start run_every for fragment
             else:
-                st.error("No results to analyze.")
-            
+                error_message = "No results to analyze."
+    
+    if error_message: st.error(error_message) # used to print below column, not in column
     st.text_area("", value=st.session_state.summary_result, height=200, key="final_summary")
 
 display_summary()
