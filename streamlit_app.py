@@ -6,7 +6,6 @@ from streamlit.runtime.scriptrunner import add_script_run_ctx
 from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_END_OF_PROMPT
 from env_config import setup_environment, setup_logging
 from utils import prompt_model, run_step, initialize_clients
-import streamlit as st
 
 # Setup environment and logging, initialize clients
 DEBUG_MODE = True # remember to set DEBUG_MODE = False before deploying
