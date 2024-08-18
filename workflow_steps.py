@@ -41,14 +41,17 @@ SUMMARY_BEGINNING_OF_PROMPT = """You're an analyst and think step-by-step.
         
         Task: you'll be given information about a company to extract key insights from and to summarize:
         - what the company does
-        - what products or services it offers
-        - the market and industry context the company operates in
+        - what products or services it offers (be more expansive here)
+        - the market and industry context the company operates
+        - what's been driving the market and what are recent industry trends and developments
         - how the company and its offering differentiates vs. its competitors
         - what customers are saying about the company and its products
         - any recent key news or developments around the company
         
         Objective: you're doing this for your director who wants to email the founder of this company and impress him with his in-depth knowledge about his business;
         therefore focus on insights and developments that an industry expert would pick up on.
+
+        Only provide the summary; no need for commentary on the task, a pre-amble or closing language.
         
         You've now been given the below information:
         \n**********"""
@@ -71,11 +74,14 @@ REFINE_PROMPT = """Objective: you're trying to get in touch with the founder and
         - any particularly positive customer feedback
         - any important more nuanced insights about the company, its market position or relevant industry trend
         - particularly noteworthy recent developments or achievements (very important if any)
+        - do not comment on their revenue or headcount growth or their funding
 
         It's important that you phrase this as follows:
         - Length: concise; max. 3 short paragraphs.
-        - Tone: conversational but direct and to the point.
-        - Language: mature, factual, analytical, no flattery, not sales-y.
+        - Tone: conversational, direct, to the point.
+        - Language/vocabulary: mature, factual, analytical, no flattery, not sales-y, simple language.
+        - Do not use language such as: innovative, revolutationary, rapid growth, market validation, underscores, relevance, rapidly, robust, aligns.
+        - Prefer language such as 'I like company_name's xyz' to 'your xyz', 'we've been following'.
 
         You've now been given the below information on the company:
         \n**********\n"""
