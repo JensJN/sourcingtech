@@ -47,6 +47,9 @@ def get_is_any_process_running():
 def get_is_analysis_running():
     return get_is_any_process_running() or st.session_state.summary_queued
 
+def get_is_anything_marked_done():
+    return False
+
 def run_step_helper(step_index: int):
     if st.session_state.company_url:
         st.session_state.is_step_running[step_index] = True
@@ -145,6 +148,8 @@ def create_display_step_function(step_index):
             st.session_state.is_step_done[step_index] = False
             st.rerun()
 
+        st.write("") #create space
+        st.write("") #create space
         col1, col2 = st.columns([3, 1])
         with col1:
             st.subheader(WORKFLOW_STEPS[step_index]["step_name"])
@@ -167,7 +172,7 @@ def create_display_step_function(step_index):
                     error_message = "Please enter a company URL."
         
         if error_message: st.error(error_message) # used to print below column, not in column
-        st.text_area("", value=st.session_state.step_results[step_index], height=150, key=f"step_{step_index}")
+        st.text_area("Output:", value=st.session_state.step_results[step_index], height=150, key=f"step_{step_index}")
 
     return display_step
 
@@ -183,11 +188,14 @@ for i in range(len(WORKFLOW_STEPS)):
 @st.fragment(run_every=1.0 if (st.session_state.is_summary_running or get_is_analysis_running()) else None)
 def display_summary():
     error_message = None
+
     # global rerun is required to reset run_every when all are done 
     if st.session_state.is_summary_done and not (get_is_any_process_running() or get_is_analysis_running()):
         st.session_state.is_summary_done = False
         st.rerun()
 
+    st.write("") #create space
+    st.write("") #create space
     col1, col2 = st.columns([3, 1])
     with col1:
         st.subheader("Final Summary")
@@ -208,6 +216,13 @@ def display_summary():
                 error_message = "No results to analyze."
     
     if error_message: st.error(error_message) # used to print below column, not in column
-    st.text_area("", value=st.session_state.summary_result, height=200, key="final_summary")
+    st.text_area("Output:", value=st.session_state.summary_result, height=200, key="final_summary")
 
 display_summary()
+
+# invisible fragment to trigger global rerun to reset all fragments' run_every once nothing is running anymore
+@st.fragment(run_every=1.0 if (get_is_any_process_running() or get_is_analysis_running()) else None)
+def invisible_fragment_to_rerun_when_all_done():
+    if get_is_anything_marked_done() and not (get_is_any_process_running() or get_is_analysis_running()):
+        st.rerun()
+invisible_fragment_to_rerun_when_all_done()
