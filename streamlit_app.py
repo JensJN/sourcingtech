@@ -8,11 +8,11 @@ from env_config import setup_environment, setup_logging
 from utils import prompt_model, run_step, initialize_clients
 
 # Setup environment and logging, initialize clients
-DEBUG_MODE = True # Set DEBUG_MODE = False unless debugging for dev
+DEBUG_MODE = True # remember to set DEBUG_MODE = False before deploying
 setup_environment()
 setup_logging(debug_mode=DEBUG_MODE)
 import logging
-initialize_clients(mock_clients=True)
+initialize_clients(mock_clients=True) # DEBUG; remember to disable before deploying
 
 st.set_page_config(page_title="JN test - Company Analysis Workflow")
 st.title("JN test - Company Analysis Workflow")
