@@ -7,6 +7,9 @@ from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_
 from env_config import setup_environment, setup_logging
 from utils import prompt_model, run_step, initialize_clients
 
+def is_any_process_running():
+    return any(st.session_state.is_step_running) or st.session_state.is_summary_running
+
 # Setup environment and logging, initialize clients
 DEBUG_MODE = True # remember to set DEBUG_MODE = False before deploying
 setup_environment()
@@ -97,12 +100,12 @@ if DEBUG_MODE:
     col2.write(f"{st.session_state.model_response}")
 
 # determine if any process is running - need this globally here and within the self-refreshing fragments
-is_any_process_running_global = any(st.session_state.is_step_running) or st.session_state.is_summary_running
+is_any_process_running_global = is_any_process_running()
 is_analysis_running_global = is_any_process_running_global or st.session_state.summary_queued
 
 @st.fragment(run_every=1.0 if is_analysis_running_global else None)
 def display_analyze_company():
-    is_any_process_running = any(st.session_state.is_step_running) or st.session_state.is_summary_running
+    is_any_process_running = is_any_process_running()
     # Check if summary is queued and no process is running
     if not is_any_process_running and st.session_state.summary_queued:
         st.session_state.summary_queued = False
@@ -140,7 +143,7 @@ def create_display_step_function(step_index):
     @st.fragment(run_every=1.0 if st.session_state.is_step_running[step_index] else None)
     def display_step():
         # global rerun is required to reset run_every when all are done
-        is_any_process_running = any(st.session_state.is_step_running) or st.session_state.is_summary_running
+        is_any_process_running = is_any_process_running()
         if st.session_state.is_step_done[step_index] and not is_any_process_running:
             st.session_state.is_step_done[step_index] = False
             st.rerun()
@@ -179,7 +182,7 @@ for i in range(len(WORKFLOW_STEPS)):
 @st.fragment(run_every=1.0 if st.session_state.is_summary_running else None)
 def display_summary():
     # global rerun is required to reset run_every when all are done 
-    is_any_process_running = any(st.session_state.is_step_running) or st.session_state.is_summary_running
+    is_any_process_running = is_any_process_running()
     if st.session_state.is_summary_done and not is_any_process_running:
         st.session_state.is_summary_done = False
         st.rerun()
