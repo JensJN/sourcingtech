@@ -70,7 +70,8 @@ def run_step_helper(step_index: int):
         
         def work_process():
             try:
-                result = cached_run_step(WORKFLOW_STEPS[step_index], st.session_state.company_url)
+                company_url = st.session_state.company_url
+                result = cached_run_step(WORKFLOW_STEPS[step_index], company_url)
                 st.session_state.step_results[step_index] = result
             except Exception as e:
                 logging.error(f"Error in step {step_index}: {str(e)}")
@@ -115,7 +116,8 @@ def run_summary_helper():
 if DEBUG_MODE:
     col1, col2 = st.columns(2)
     if col1.button("Test Model", use_container_width=True):
-        st.session_state.model_response = cached_prompt_model("Which model are you? Answer in format: Using model: Vendor, Model")
+        result = cached_prompt_model("Which model are you? Answer in format: Using model: Vendor, Model")
+        st.session_state.model_response = result
     col2.write(f"{st.session_state.model_response}")
 
 @st.fragment(run_every=1.0 if get_is_analysis_running() else None)
