@@ -103,6 +103,11 @@ is_analysis_running_global = is_any_process_running_global or st.session_state.s
 @st.fragment(run_every=1.0 if is_analysis_running_global else None)
 def display_analyze_company():
     is_any_process_running = any(st.session_state.is_step_running) or st.session_state.is_summary_running
+    # Check if summary is queued and no process is running
+    if not is_any_process_running and st.session_state.summary_queued:
+        run_summary_helper()
+        st.session_state.summary_queued = False
+        st.rerun()
     # Input for company URL
     st.session_state.company_url = st.text_input("Enter company URL:", 
                                                  value=st.session_state.company_url, 
