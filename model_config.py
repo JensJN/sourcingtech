@@ -12,11 +12,8 @@ if MODEL == "sonnet_vertex":
     PRESENCE_PENALTY = None  # n/a on vertex
     REQUIRED_ENV.extend(["GOOGLE_APPLICATION_CREDENTIALS", "VERTEXAI_PROJECT", "VERTEXAI_LOCATION"])
 elif MODEL == "gpt4o_openai":
-    MODEL_NAME = "gpt-4"
-    TEMPERATURE = 0.5  # Same as sonnet_vertex
-    TOP_P = None
-    FREQUENCY_PENALTY = None
-    PRESENCE_PENALTY = None
+    MODEL_NAME = "gpt-4o"
+    TEMPERATURE = 0.4  # 0.3-0.5 for balanced, more for creativity
     REQUIRED_ENV.append("OPENAI_API_KEY")
 elif MODEL == "deepseek":
     MODEL_NAME = "deepseek/deepseek-chat"
