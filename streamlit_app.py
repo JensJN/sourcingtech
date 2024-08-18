@@ -1,4 +1,6 @@
 import streamlit as st
+st.set_page_config(page_title="JN test - Company Analysis Workflow") # needs to stay here to avoid issues
+
 from typing import List, Callable
 import threading
 import time
@@ -14,7 +16,6 @@ setup_logging(debug_mode=DEBUG_MODE)
 import logging
 initialize_clients(mock_clients=True) # DEBUG; remember to disable before deploying
 
-st.set_page_config(page_title="JN test - Company Analysis Workflow")
 st.title("JN test - Company Analysis Workflow")
 
 # Initialize session state
