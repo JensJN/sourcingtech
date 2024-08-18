@@ -94,14 +94,16 @@ if DEBUG_MODE:
         st.session_state.model_response = prompt_model("Which model are you? Answer in format: Using model: Vendor, Model")
     col2.write(f"{st.session_state.model_response}")
 
-# Input for company URL
-st.session_state.company_url = st.text_input("Enter company URL:", value=st.session_state.company_url)
-
 # Determine if any step or summary is running
 is_any_process_running = any(st.session_state.is_step_running) or st.session_state.is_summary_running
 
 @st.fragment(run_every=1.0 if is_any_process_running else None)
 def display_analyze_company_button():
+    # Input for company URL
+    st.session_state.company_url = st.text_input("Enter company URL:", 
+                                                 value=st.session_state.company_url, 
+                                                 disabled=is_any_process_running)
+
     button_text = "Analyze Company"
     if is_any_process_running:
         running_steps = [i for i, running in enumerate(st.session_state.is_step_running) if running]
