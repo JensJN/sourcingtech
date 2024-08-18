@@ -310,15 +310,6 @@ def display_draft_email():
 
 display_draft_email()
 
-# invisible fragment to trigger global rerun to reset all fragments' run_every once nothing is running anymore
-@st.fragment(run_every=1.0 if (get_is_any_process_running() or get_is_analysis_running()) else None)
-def invisible_fragment_to_rerun_when_all_done():
-    #trigger rerun if any steps are marked done and nothing is running anymore
-    if get_is_anything_marked_done() and not (get_is_any_process_running() or get_is_analysis_running()):
-        set_everthing_not_done()
-        st.rerun()
-invisible_fragment_to_rerun_when_all_done()
-
 def generate_pdf():
     html_content = f"""
     <html>
@@ -359,8 +350,17 @@ def generate_pdf():
     return pdf_file
 
 # Add Download PDF button
-if st.button("Download as PDF"):
+if st.button("Generate PDF"):
     pdf = generate_pdf()
     b64 = base64.b64encode(pdf.getvalue()).decode()
     href = f'<a href="data:application/pdf;base64,{b64}" download="company_analysis.pdf">Click here to download the PDF</a>'
     st.markdown(href, unsafe_allow_html=True)
+
+# invisible fragment to trigger global rerun to reset all fragments' run_every once nothing is running anymore; should always stay at end of file
+@st.fragment(run_every=1.0 if (get_is_any_process_running() or get_is_analysis_running()) else None)
+def invisible_fragment_to_rerun_when_all_done():
+    #trigger rerun if any steps are marked done and nothing is running anymore
+    if get_is_anything_marked_done() and not (get_is_any_process_running() or get_is_analysis_running()):
+        set_everthing_not_done()
+        st.rerun()
+invisible_fragment_to_rerun_when_all_done()
