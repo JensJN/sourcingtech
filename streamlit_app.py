@@ -102,17 +102,13 @@ if DEBUG_MODE:
         st.session_state.model_response = prompt_model("Which model are you? Answer in format: Using model: Vendor, Model")
     col2.write(f"{st.session_state.model_response}")
 
-# determine if any process is running - need this globally here and within the self-refreshing fragments
-is_any_process_running_global = get_is_any_process_running()
-is_analysis_running_global = get_is_analysis_running()
-
-@st.fragment(run_every=1.0 if is_analysis_running_global else None)
+@st.fragment(run_every=1.0 if get_is_analysis_running() else None)
 def display_analyze_company():
     is_any_process_running = get_is_any_process_running()
     # Check if summary is queued and no process is running
     if not is_any_process_running and st.session_state.summary_queued:
-        st.session_state.summary_queued = False
         run_summary_helper()
+        st.session_state.summary_queued = False
         st.rerun() #required to start run_every for summary fragment
     # Input for company URL
     st.session_state.company_url = st.text_input("Enter company URL:", 
@@ -146,8 +142,7 @@ def create_display_step_function(step_index):
     @st.fragment(run_every=1.0 if st.session_state.is_step_running[step_index] else None)
     def display_step():
         # global rerun is required to reset run_every when all are done
-        is_any_process_running = get_is_any_process_running()
-        if st.session_state.is_step_done[step_index] and not is_any_process_running:
+        if st.session_state.is_step_done[step_index] and not (get_is_any_process_running() or get_is_analysis_running()):
             st.session_state.is_step_done[step_index] = False
             st.rerun()
 
@@ -185,8 +180,7 @@ for i in range(len(WORKFLOW_STEPS)):
 @st.fragment(run_every=1.0 if st.session_state.is_summary_running else None)
 def display_summary():
     # global rerun is required to reset run_every when all are done 
-    is_any_process_running = get_is_any_process_running()
-    if st.session_state.is_summary_done and not is_any_process_running:
+    if st.session_state.is_summary_done and not (get_is_any_process_running() or get_is_analysis_running()):
         st.session_state.is_summary_done = False
         st.rerun()
 
