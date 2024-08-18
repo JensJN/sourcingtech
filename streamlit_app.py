@@ -117,7 +117,7 @@ def display_analyze_company_button():
         if st.session_state.company_url:
             for i in range(len(WORKFLOW_STEPS)):
                 run_step_helper(i)
-                st.rerun() #required to start run_every for fragment
+            st.rerun() #required to start run_every for fragment
         else:
             st.error("Please enter a company URL.")
 
