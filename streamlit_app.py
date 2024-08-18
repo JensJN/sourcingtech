@@ -116,7 +116,7 @@ def create_display_step_function(step_index):
 
     return display_step
 
-# Display step results
+# Display step results; this two-step process is required to make @st.fragment or other decoration work
 for i in range(len(WORKFLOW_STEPS)):
     display_step_func = create_display_step_function(i)
     # Register the function as a global
@@ -148,10 +148,9 @@ def display_summary():
             if any(st.session_state.step_results):
                 st.session_state.is_summary_running = True
                 st.session_state.summary_start_time = time.time()
-                
+                summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
                 def work_process():
                     try:
-                        summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
                         result = prompt_model(summary_prompt)
                         st.session_state.summary_result = result
                     except Exception as e:
