@@ -7,9 +7,6 @@ from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_
 from env_config import setup_environment, setup_logging
 from utils import prompt_model, run_step, initialize_clients
 
-def get_is_any_process_running():
-    return any(st.session_state.is_step_running) or st.session_state.is_summary_running
-
 # Setup environment and logging, initialize clients
 DEBUG_MODE = True # remember to set DEBUG_MODE = False before deploying
 setup_environment()
@@ -43,6 +40,9 @@ if 'is_summary_done' not in st.session_state:
     st.session_state.is_summary_done = False
 if 'summary_queued' not in st.session_state:
     st.session_state.summary_queued = False
+
+def get_is_any_process_running():
+    return any(st.session_state.is_step_running) or st.session_state.is_summary_running
 
 def run_step_helper(step_index: int):
     if st.session_state.company_url:
