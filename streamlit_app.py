@@ -50,6 +50,9 @@ def get_is_analysis_running():
 def get_is_anything_marked_done():
     return st.session_state.is_summary_done or any(st.session_state.is_step_done)
 
+def set_mark_all_done():
+    
+
 def run_step_helper(step_index: int):
     if st.session_state.company_url:
         st.session_state.is_step_running[step_index] = True
@@ -223,6 +226,8 @@ display_summary()
 # invisible fragment to trigger global rerun to reset all fragments' run_every once nothing is running anymore
 @st.fragment(run_every=1.0 if (get_is_any_process_running() or get_is_analysis_running()) else None)
 def invisible_fragment_to_rerun_when_all_done():
+    #trigger rerun if any steps are marked done and nothing is running anymore
     if get_is_anything_marked_done() and not (get_is_any_process_running() or get_is_analysis_running()):
+        set_mark_all_done()
         st.rerun()
 invisible_fragment_to_rerun_when_all_done()
