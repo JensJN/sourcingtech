@@ -93,7 +93,7 @@ def run_summary_helper():
         add_script_run_ctx(thread)
         thread.start()
     else:
-        st.error("Please analyze the company first.")
+        st.error("No results to analyze.")
 
 ## Button to identify the model (only shown in debug mode)
 if DEBUG_MODE:
@@ -125,7 +125,7 @@ def display_analyze_company():
             button_text = f"Running Summary... {elapsed_time}s"
 
     if st.button(button_text, use_container_width=True, disabled=get_is_any_process_running()):
-        if st.session_state.company_url:
+        if st.session_state.company_url: # keep this check even if redundant to avoid re-run
             for i in range(len(WORKFLOW_STEPS)):
                 run_step_helper(i)
             st.session_state.summary_queued = True
@@ -159,8 +159,11 @@ def create_display_step_function(step_index):
                 disabled=st.session_state.is_step_running[step_index],
                 use_container_width=True
             ):
-                run_step_helper(step_index)
-                st.rerun() #required to start run_every for fragment
+                if st.session_state.company_url: # keep this check even if redundant to avoid re-run
+                    run_step_helper(step_index)
+                    st.rerun() #required to start run_every for fragment
+                else:
+                    st.error("Please enter a company URL.")
         
         st.text_area("", value=st.session_state.step_results[step_index], height=150, key=f"step_{step_index}")
 
@@ -195,8 +198,12 @@ def display_summary():
             disabled=st.session_state.is_summary_running,
             use_container_width=True
         ):
-            run_summary_helper()
-            st.rerun() #required to start run_every for fragment
+            if any(st.session_state.step_results): # keep this check even if redundant to avoid re-run
+                run_summary_helper()
+                st.rerun() #required to start run_every for fragment
+            else:
+                st.error("No results to analyze.")
+            
     st.text_area("", value=st.session_state.summary_result, height=200, key="final_summary")
 
 display_summary()
