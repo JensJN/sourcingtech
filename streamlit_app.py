@@ -147,10 +147,6 @@ def create_display_step_function(step_index):
     @st.fragment(run_every=1.0 if (st.session_state.is_step_running[step_index] or get_is_analysis_running()) else None)
     def display_step():
         error_message = None
-        # global rerun is required to reset run_every when all are done
-        if st.session_state.is_step_done[step_index] and not (get_is_any_process_running() or get_is_analysis_running()):
-            st.session_state.is_step_done[step_index] = False
-            st.rerun()
 
         st.write("") #create space
         st.write("") #create space
@@ -192,11 +188,6 @@ for i in range(len(WORKFLOW_STEPS)):
 @st.fragment(run_every=1.0 if (st.session_state.is_summary_running or get_is_analysis_running()) else None)
 def display_summary():
     error_message = None
-
-    # global rerun is required to reset run_every when all are done 
-    if st.session_state.is_summary_done and not (get_is_any_process_running() or get_is_analysis_running()):
-        st.session_state.is_summary_done = False
-        st.rerun()
 
     st.write("") #create space
     st.write("") #create space
