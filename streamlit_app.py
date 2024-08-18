@@ -349,16 +349,16 @@ def generate_pdf():
     pdf_file.seek(0)
     return pdf_file
 
-# Add Download PDF button
+# Add Generate and Download PDF button
 st.write("")
-if st.button("Generate PDF", use_container_width=True):
-    pdf = generate_pdf()
-    st.download_button(
-        label="Download PDF",
-        data=pdf,
-        file_name="company_analysis.pdf",
-        mime="application/pdf",
-    )
+if st.download_button(
+    label="Generate and Download PDF",
+    data=generate_pdf(),
+    file_name="company_analysis.pdf",
+    mime="application/pdf",
+    use_container_width=True
+):
+    st.success("PDF generated and downloaded successfully!")
 
 # invisible fragment to trigger global rerun to reset all fragments' run_every once nothing is running anymore; should always stay at end of file
 @st.fragment(run_every=1.0 if (get_is_any_process_running() or get_is_analysis_running()) else None)
