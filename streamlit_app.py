@@ -97,14 +97,12 @@ if DEBUG_MODE:
 # Input for company URL
 st.session_state.company_url = st.text_input("Enter company URL:", value=st.session_state.company_url)
 
-def analyze_company_callback():
+if st.button("Analyze Company", use_container_width=True):
     if st.session_state.company_url:
         for i in range(len(WORKFLOW_STEPS)):
             run_step_helper(i)
     else:
         st.error("Please enter a company URL.")
-
-st.button("Analyze Company", on_click=analyze_company_callback, use_container_width=True)
 
 # Function to create display step functions
 def create_display_step_function(step_index):
