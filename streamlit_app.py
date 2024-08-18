@@ -6,6 +6,7 @@ from streamlit.runtime.scriptrunner import add_script_run_ctx
 from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_END_OF_PROMPT
 from env_config import setup_environment, setup_logging
 from utils import prompt_model, run_step, initialize_clients
+import streamlit as st
 
 # Setup environment and logging, initialize clients
 DEBUG_MODE = True # remember to set DEBUG_MODE = False before deploying
@@ -13,6 +14,14 @@ setup_environment()
 setup_logging(debug_mode=DEBUG_MODE)
 import logging
 initialize_clients(mock_clients=True) # DEBUG; remember to disable before deploying
+
+@st.cache_data
+def cached_prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, **kwargs):
+    return prompt_model(prompt, max_tokens, role, response_model, **kwargs)
+
+@st.cache_data
+def cached_run_step(step: dict, company_url: str):
+    return run_step(step, company_url)
 
 st.set_page_config(page_title="JN test - Company Analysis Workflow")
 st.title("JN test - Company Analysis Workflow")
@@ -61,7 +70,7 @@ def run_step_helper(step_index: int):
         
         def work_process():
             try:
-                result = run_step(WORKFLOW_STEPS[step_index], st.session_state.company_url)
+                result = cached_run_step(WORKFLOW_STEPS[step_index], st.session_state.company_url)
                 st.session_state.step_results[step_index] = result
             except Exception as e:
                 logging.error(f"Error in step {step_index}: {str(e)}")
@@ -85,7 +94,7 @@ def run_summary_helper():
         summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
         def work_process():
             try:
-                result = prompt_model(summary_prompt)
+                result = cached_prompt_model(summary_prompt)
                 st.session_state.summary_result = result
             except Exception as e:
                 logging.error(f"Error in summary generation: {str(e)}")
@@ -106,7 +115,7 @@ def run_summary_helper():
 if DEBUG_MODE:
     col1, col2 = st.columns(2)
     if col1.button("Test Model", use_container_width=True):
-        st.session_state.model_response = prompt_model("Which model are you? Answer in format: Using model: Vendor, Model")
+        st.session_state.model_response = cached_prompt_model("Which model are you? Answer in format: Using model: Vendor, Model")
     col2.write(f"{st.session_state.model_response}")
 
 @st.fragment(run_every=1.0 if get_is_analysis_running() else None)
