@@ -64,6 +64,31 @@ def run_step_helper(step_index: int, work_function: Callable):
     else:
         st.error("Please enter a company URL.")
 
+def run_summary_helper():
+    if any(st.session_state.step_results):
+        st.session_state.is_summary_running = True
+        st.session_state.summary_start_time = time.time()
+        summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
+        def work_process():
+            try:
+                result = prompt_model(summary_prompt)
+                st.session_state.summary_result = result
+            except Exception as e:
+                logging.error(f"Error in summary generation: {str(e)}")
+                st.session_state.summary_result = "Error occurred during summary generation."
+            finally:
+                st.session_state.is_summary_running = False
+                st.session_state.summary_start_time = None
+                st.session_state.is_summary_done = True
+                logging.info("Summary work process completed")
+
+        thread = threading.Thread(target=work_process, daemon=True)
+        add_script_run_ctx(thread)
+        thread.start()
+        st.rerun() #required to start run_every
+    else:
+        st.error("Please analyze the company first.")
+
 ## Button to identify the model (only shown in debug mode)
 if DEBUG_MODE:
     col1, col2 = st.columns(2)
@@ -145,29 +170,7 @@ def display_summary():
             disabled=st.session_state.is_summary_running,
             use_container_width=True
         ):
-            if any(st.session_state.step_results):
-                st.session_state.is_summary_running = True
-                st.session_state.summary_start_time = time.time()
-                summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
-                def work_process():
-                    try:
-                        result = prompt_model(summary_prompt)
-                        st.session_state.summary_result = result
-                    except Exception as e:
-                        logging.error(f"Error in summary generation: {str(e)}")
-                        st.session_state.summary_result = "Error occurred during summary generation."
-                    finally:
-                        st.session_state.is_summary_running = False
-                        st.session_state.summary_start_time = None
-                        st.session_state.is_summary_done = True
-                        logging.info("Summary work process completed")
-
-                thread = threading.Thread(target=work_process, daemon=True)
-                add_script_run_ctx(thread)
-                thread.start()
-                st.rerun() #required to start run_every
-            else:
-                st.error("Please analyze the company first.")
+            run_summary_helper()
     st.text_area("", value=st.session_state.summary_result, height=200, key="final_summary")
 
 display_summary()
