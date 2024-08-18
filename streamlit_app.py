@@ -315,10 +315,22 @@ def generate_pdf():
     <html>
     <head>
         <style>
-            body {{ font-family: Arial, sans-serif; }}
-            h1 {{ color: #1E90FF; }}
-            h2 {{ color: #4682B4; }}
-            .section {{ margin-bottom: 20px; }}
+            body {{
+                font-family: Arial, sans-serif;
+                color: black;
+                font-size: 10px;
+            }}
+            h1 {{
+                font-size: 16px;
+                margin-bottom: 10px;
+            }}
+            h2 {{
+                font-size: 14px;
+                margin-bottom: 5px;
+            }}
+            .section {{
+                margin-bottom: 15px;
+            }}
         </style>
     </head>
     <body>
