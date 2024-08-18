@@ -318,14 +318,14 @@ def generate_pdf():
             body {{
                 font-family: Arial, sans-serif;
                 color: black;
-                font-size: 10px;
+                font-size: 12px;
             }}
             h1 {{
-                font-size: 16px;
+                font-size: 18px;
                 margin-bottom: 10px;
             }}
             h2 {{
-                font-size: 14px;
+                font-size: 16px;
                 margin-bottom: 5px;
             }}
             .section {{
