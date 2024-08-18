@@ -16,6 +16,9 @@ setup_logging(debug_mode=DEBUG_MODE)
 import logging
 initialize_clients(mock_clients=True) # DEBUG; remember to disable before deploying
 
+from diskcache import Cache
+cache = Cache('/tmp/mycache')
+
 st.title("JN test - Company Analysis Workflow")
 
 # Initialize session state
@@ -56,11 +59,13 @@ def set_everthing_not_done():
     st.session_state.is_step_done = [False] * len(WORKFLOW_STEPS)
 
 #@st.cache_data # bug in streamlit 1.37 causes cached functions to not be thread safe (https://github.com/streamlit/streamlit/issues/9260)
+@cache.memoize()
 def cached_prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, **kwargs):
     returnval = prompt_model(prompt, max_tokens, role, response_model, **kwargs)
     return returnval
 
 #@st.cache_data# bug in streamlit 1.37 causes cached functions to not be thread safe (https://github.com/streamlit/streamlit/issues/9260)
+@cache.memoize()
 def cached_run_step(step: dict, company_url: str):
     returnval = run_step(step, company_url)
     return returnval
