@@ -44,18 +44,29 @@ if 'is_summary_done' not in st.session_state:
     st.session_state.is_summary_done = False
 if 'summary_queued' not in st.session_state:
     st.session_state.summary_queued = False
+if 'is_refine_running' not in st.session_state:
+    st.session_state.is_refine_running = False
+if 'refine_start_time' not in st.session_state:
+    st.session_state.refine_start_time = None
+if 'is_refine_done' not in st.session_state:
+    st.session_state.is_refine_done = False
+if 'refine_queued' not in st.session_state:
+    st.session_state.refine_queued = False
+if 'refine_result' not in st.session_state:
+    st.session_state.refine_result = ""
 
 def get_is_any_process_running():
-    return any(st.session_state.is_step_running) or st.session_state.is_summary_running
+    return any(st.session_state.is_step_running) or st.session_state.is_summary_running or st.session_state.is_refine_running
 
 def get_is_analysis_running():
-    return get_is_any_process_running() or st.session_state.summary_queued
+    return get_is_any_process_running() or st.session_state.summary_queued or st.session_state.refine_queued
 
 def get_is_anything_marked_done():
-    return st.session_state.is_summary_done or any(st.session_state.is_step_done)
+    return st.session_state.is_summary_done or st.session_state.is_refine_done or any(st.session_state.is_step_done)
 
 def set_everthing_not_done():
     st.session_state.is_summary_done = False
+    st.session_state.is_refine_done = False
     st.session_state.is_step_done = [False] * len(WORKFLOW_STEPS)
 
 #@st.cache_data # bug in streamlit 1.37 causes cached functions to not be thread safe (https://github.com/streamlit/streamlit/issues/9260)
@@ -111,6 +122,7 @@ def run_summary_helper():
                 st.session_state.is_summary_running = False
                 st.session_state.summary_start_time = None
                 st.session_state.is_summary_done = True
+                st.session_state.refine_queued = True
                 logging.info("Summary work process completed")
 
         thread = threading.Thread(target=work_process, daemon=True)
@@ -118,6 +130,30 @@ def run_summary_helper():
         thread.start()
     else:
         st.error("No results to analyze.")
+
+def run_refine_helper():
+    if st.session_state.summary_result:
+        st.session_state.is_refine_running = True
+        st.session_state.refine_start_time = time.time()
+        refine_prompt = "Refine prompt placeholder"  # We'll define this later in workflow_steps.py
+        def work_process():
+            try:
+                result = cached_prompt_model(refine_prompt)
+                st.session_state.refine_result = result
+            except Exception as e:
+                logging.error(f"Error in refine step: {str(e)}")
+                st.session_state.refine_result = "Error occurred during refine step."
+            finally:
+                st.session_state.is_refine_running = False
+                st.session_state.refine_start_time = None
+                st.session_state.is_refine_done = True
+                logging.info("Refine work process completed")
+
+        thread = threading.Thread(target=work_process, daemon=True)
+        add_script_run_ctx(thread)
+        thread.start()
+    else:
+        st.error("No summary to refine.")
 
 ## Button to identify the model (only shown in debug mode)
 if DEBUG_MODE:
@@ -133,6 +169,10 @@ def display_analyze_company():
     if not get_is_any_process_running() and st.session_state.summary_queued:
         run_summary_helper()
         st.session_state.summary_queued = False
+    # Check if refine is queued and no process is running
+    elif not get_is_any_process_running() and st.session_state.refine_queued:
+        run_refine_helper()
+        st.session_state.refine_queued = False
     # Input for company URL
     st.session_state.company_url = st.text_input("Enter company URL:", 
                                                  value=st.session_state.company_url, 
@@ -148,6 +188,9 @@ def display_analyze_company():
         elif st.session_state.is_summary_running:
             elapsed_time = int(time.time() - st.session_state.summary_start_time)
             button_text = f"Running Summary... {elapsed_time}s"
+        elif st.session_state.is_refine_running:
+            elapsed_time = int(time.time() - st.session_state.refine_start_time)
+            button_text = f"Running Refine... {elapsed_time}s"
 
     if st.button(button_text, use_container_width=True, disabled=get_is_any_process_running()):
         if st.session_state.company_url: # keep this check even if redundant to avoid re-run
@@ -232,6 +275,37 @@ def display_summary():
     st.text_area("Output:", value=st.session_state.summary_result, height=200, key="final_summary")
 
 display_summary()
+
+# Display refined summary
+@st.fragment(run_every=1.0 if (st.session_state.is_refine_running or get_is_analysis_running()) else None)
+def display_refined_summary():
+    error_message = None
+
+    st.write("") #create space
+    st.write("") #create space
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        st.subheader("Refined Summary")
+    with col2:
+        button_text = "Refine"
+        if st.session_state.is_refine_running:
+            elapsed_time = int(time.time() - st.session_state.refine_start_time)
+            button_text = f"Running... {elapsed_time}s"
+        if st.button(
+            button_text,
+            disabled=st.session_state.is_refine_running,
+            use_container_width=True
+        ):
+            if st.session_state.summary_result: # keep this check even if redundant to avoid re-run
+                run_refine_helper()
+                st.rerun() #required to start run_every for fragment
+            else:
+                error_message = "No summary to refine."
+    
+    if error_message: st.error(error_message) # used to print below column, not in column
+    st.text_area("Output:", value=st.session_state.refine_result, height=200, key="refined_summary")
+
+display_refined_summary()
 
 # invisible fragment to trigger global rerun to reset all fragments' run_every once nothing is running anymore
 @st.fragment(run_every=1.0 if (get_is_any_process_running() or get_is_analysis_running()) else None)
