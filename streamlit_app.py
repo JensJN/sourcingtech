@@ -110,7 +110,7 @@ def run_summary_helper():
     if any(st.session_state.step_results):
         st.session_state.is_summary_running = True
         st.session_state.summary_start_time = time.time()
-        summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
+        summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n ***** \n" + "\n\n".join(st.session_state.step_results) + "\n ***** \n" + SUMMARY_END_OF_PROMPT
         def work_process():
             try:
                 result = cached_prompt_model(summary_prompt)
@@ -134,7 +134,7 @@ def run_refine_helper():
     if st.session_state.summary_result:
         st.session_state.is_refine_running = True
         st.session_state.refine_start_time = time.time()
-        refine_prompt = REFINE_PROMPT + "\n\nSummary to refine:\n" + st.session_state.summary_result
+        refine_prompt = REFINE_PROMPT + "\n ***** \n" + st.session_state.summary_result
         def work_process():
             try:
                 result = cached_prompt_model(refine_prompt)
