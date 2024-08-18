@@ -35,7 +35,7 @@ def _mock_instructorlitellm_client():
         class completions:
             @staticmethod
             def create(**kwargs):
-                time.sleep(1)  # Add 5-second sleep
+                time.sleep(3)  # Add 5-second sleep
                 class MockResponse:
                     def __init__(self):
                         self.content = 'Mock response from instructorlitellm_client'

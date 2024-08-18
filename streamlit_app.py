@@ -1,5 +1,7 @@
 import streamlit as st
-from typing import List
+st.set_page_config(page_title="JN test - Company Analysis Workflow") # needs to stay here to avoid issues
+
+from typing import List, Callable
 import threading
 import time
 from streamlit.runtime.scriptrunner import add_script_run_ctx
@@ -7,14 +9,16 @@ from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_
 from env_config import setup_environment, setup_logging
 from utils import prompt_model, run_step, initialize_clients
 
-# Setup environment and logging, initialize clients
-DEBUG_MODE = True # Set DEBUG_MODE = False unless debugging for dev
+# Setup environment and logging, initialize clients, setup cache for slow/expensive functions
+DEBUG_MODE = False # remember to set DEBUG_MODE = False before deploying
 setup_environment()
 setup_logging(debug_mode=DEBUG_MODE)
 import logging
-initialize_clients(mock_clients=True)
+initialize_clients(mock_clients=False) # DEBUG; remember to disable before deploying
 
-st.set_page_config(page_title="JN test - Company Analysis Workflow")
+from diskcache import Cache
+cache = Cache('/tmp/mycache')
+
 st.title("JN test - Company Analysis Workflow")
 
 # Initialize session state
@@ -38,40 +42,132 @@ if 'is_step_done' not in st.session_state:
     st.session_state.is_step_done = [False] * len(WORKFLOW_STEPS)
 if 'is_summary_done' not in st.session_state:
     st.session_state.is_summary_done = False
+if 'summary_queued' not in st.session_state:
+    st.session_state.summary_queued = False
+
+def get_is_any_process_running():
+    return any(st.session_state.is_step_running) or st.session_state.is_summary_running
+
+def get_is_analysis_running():
+    return get_is_any_process_running() or st.session_state.summary_queued
+
+def get_is_anything_marked_done():
+    return st.session_state.is_summary_done or any(st.session_state.is_step_done)
+
+def set_everthing_not_done():
+    st.session_state.is_summary_done = False
+    st.session_state.is_step_done = [False] * len(WORKFLOW_STEPS)
+
+#@st.cache_data # bug in streamlit 1.37 causes cached functions to not be thread safe (https://github.com/streamlit/streamlit/issues/9260)
+@cache.memoize()
+def cached_prompt_model(prompt: str, max_tokens: int = 1024, role: str = "user", response_model=None, **kwargs):
+    returnval = prompt_model(prompt, max_tokens, role, response_model, **kwargs)
+    return returnval
+
+#@st.cache_data# bug in streamlit 1.37 causes cached functions to not be thread safe (https://github.com/streamlit/streamlit/issues/9260)
+@cache.memoize()
+def cached_run_step(step: dict, company_url: str):
+    returnval = run_step(step, company_url)
+    return returnval
+
+def run_step_helper(step_index: int):
+    if st.session_state.company_url:
+        st.session_state.is_step_running[step_index] = True
+        st.session_state.step_start_time[step_index] = time.time()
+        
+        def work_process():
+            try:
+                company_url = st.session_state.company_url
+                result = cached_run_step(WORKFLOW_STEPS[step_index], company_url)
+                st.session_state.step_results[step_index] = result
+            except Exception as e:
+                logging.error(f"Error in step {step_index}: {str(e)}")
+                st.session_state.step_results[step_index] = f"Error occurred during step {step_index}."
+            finally:
+                st.session_state.is_step_running[step_index] = False
+                st.session_state.step_start_time[step_index] = None
+                st.session_state.is_step_done[step_index] = True
+                logging.info(f"Step {step_index} work process completed")
+
+        thread = threading.Thread(target=work_process, daemon=True)
+        add_script_run_ctx(thread)
+        thread.start()
+    else:
+        st.error("Please enter a company URL.")
+
+def run_summary_helper():
+    if any(st.session_state.step_results):
+        st.session_state.is_summary_running = True
+        st.session_state.summary_start_time = time.time()
+        summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
+        def work_process():
+            try:
+                result = cached_prompt_model(summary_prompt)
+                st.session_state.summary_result = result
+            except Exception as e:
+                logging.error(f"Error in summary generation: {str(e)}")
+                st.session_state.summary_result = "Error occurred during summary generation."
+            finally:
+                st.session_state.is_summary_running = False
+                st.session_state.summary_start_time = None
+                st.session_state.is_summary_done = True
+                logging.info("Summary work process completed")
+
+        thread = threading.Thread(target=work_process, daemon=True)
+        add_script_run_ctx(thread)
+        thread.start()
+    else:
+        st.error("No results to analyze.")
 
 ## Button to identify the model (only shown in debug mode)
 if DEBUG_MODE:
     col1, col2 = st.columns(2)
     if col1.button("Test Model", use_container_width=True):
-        st.session_state.model_response = prompt_model("Which model are you? Answer in format: Using model: Vendor, Model")
+        result = cached_prompt_model("Which model are you? Answer in format: Using model: Vendor, Model")
+        st.session_state.model_response = result
     col2.write(f"{st.session_state.model_response}")
 
-# Input for company URL
-st.session_state.company_url = st.text_input("Enter company URL:", value=st.session_state.company_url)
+@st.fragment(run_every=1.0 if get_is_analysis_running() else None)
+def display_analyze_company():
+    # Check if summary is queued and no process is running
+    if not get_is_any_process_running() and st.session_state.summary_queued:
+        run_summary_helper()
+        st.session_state.summary_queued = False
+    # Input for company URL
+    st.session_state.company_url = st.text_input("Enter company URL:", 
+                                                 value=st.session_state.company_url, 
+                                                 disabled=get_is_any_process_running())
 
-def analyze_company_callback():
-    if st.session_state.company_url:
-        for i, step in enumerate(WORKFLOW_STEPS):
-            result = run_step(step, st.session_state.company_url)
-            st.session_state.step_results[i] = result
-    else:
-        st.error("Please enter a company URL.")
+    button_text = "Analyze Company"
+    if get_is_any_process_running():
+        running_steps = [i for i, running in enumerate(st.session_state.is_step_running) if running]
+        if running_steps:
+            step_index = running_steps[0]
+            elapsed_time = int(time.time() - st.session_state.step_start_time[step_index])
+            button_text = f"Running Step {step_index + 1}... {elapsed_time}s"
+        elif st.session_state.is_summary_running:
+            elapsed_time = int(time.time() - st.session_state.summary_start_time)
+            button_text = f"Running Summary... {elapsed_time}s"
 
+    if st.button(button_text, use_container_width=True, disabled=get_is_any_process_running()):
+        if st.session_state.company_url: # keep this check even if redundant to avoid re-run
+            for i in range(len(WORKFLOW_STEPS)):
+                run_step_helper(i)
+            st.session_state.summary_queued = True
+            st.rerun() #required to start run_every for fragments
+        else:
+            st.error("Please enter a company URL.")
 
-col1, _ = st.columns(2)
-
-col1.button("Analyze Company", on_click=analyze_company_callback, use_container_width=True)
+display_analyze_company()
 
 # Function to create display step functions
 def create_display_step_function(step_index):
-    run_every_this_step = 1.0 if st.session_state.is_step_running[step_index] else None
-    @st.fragment(run_every=run_every_this_step)
+    @st.fragment(run_every=1.0 if (st.session_state.is_step_running[step_index] or get_is_analysis_running()) else None)
     def display_step():
-        # global rerun is required to reset run_every when all are done
-        if st.session_state.is_step_done[step_index] and all(not st.session_state.is_step_running[i] for i in range(len(WORKFLOW_STEPS))) and not st.session_state.is_summary_running:
-            st.session_state.is_step_done[step_index] = False
-            st.rerun()
+        error_message = None
 
+        st.write("") #create space
+        st.write("") #create space
         col1, col2 = st.columns([3, 1])
         with col1:
             st.subheader(WORKFLOW_STEPS[step_index]["step_name"])
@@ -87,35 +183,18 @@ def create_display_step_function(step_index):
                 disabled=st.session_state.is_step_running[step_index],
                 use_container_width=True
             ):
-                if st.session_state.company_url:
-                    st.session_state.is_step_running[step_index] = True
-                    st.session_state.step_start_time[step_index] = time.time()
-                    
-                    def work_process():
-                        try:
-                            result = run_step(WORKFLOW_STEPS[step_index], st.session_state.company_url)
-                            st.session_state.step_results[step_index] = result
-                        except Exception as e:
-                            logging.error(f"Error in step {step_index}: {str(e)}")
-                            st.session_state.step_results[step_index] = f"Error occurred during step {step_index}."
-                        finally:
-                            st.session_state.is_step_running[step_index] = False
-                            st.session_state.step_start_time[step_index] = None
-                            st.session_state.is_step_done[step_index] = True
-                            logging.info(f"Step {step_index} work process completed")
-
-                    thread = threading.Thread(target=work_process, daemon=True)
-                    add_script_run_ctx(thread)
-                    thread.start()
-                    st.rerun() #required to start run_every
+                if st.session_state.company_url: # keep this check even if redundant to avoid re-run
+                    run_step_helper(step_index)
+                    st.rerun() #required to start run_every for fragment
                 else:
-                    st.error("Please enter a company URL.")
+                    error_message = "Please enter a company URL."
         
-        st.text_area("", value=st.session_state.step_results[step_index], height=150, key=f"step_{step_index}")
+        if error_message: st.error(error_message) # used to print below column, not in column
+        st.text_area("Output:", value=st.session_state.step_results[step_index], height=150, key=f"step_{step_index}")
 
     return display_step
 
-# Display step results
+# Display step results; this two-step process is required to make @st.fragment or other decoration work
 for i in range(len(WORKFLOW_STEPS)):
     display_step_func = create_display_step_function(i)
     # Register the function as a global
@@ -124,13 +203,12 @@ for i in range(len(WORKFLOW_STEPS)):
     globals()[f'display_step_{i}']()
 
 # Display final summary
-@st.fragment(run_every=1.0 if st.session_state.is_summary_running else None)
+@st.fragment(run_every=1.0 if (st.session_state.is_summary_running or get_is_analysis_running()) else None)
 def display_summary():
-    # global rerun is required to reset run_every when all are done 
-    if st.session_state.is_summary_done and all(not st.session_state.is_step_running[i] for i in range(len(WORKFLOW_STEPS))) and not st.session_state.is_summary_running:
-        st.session_state.is_summary_done = False
-        st.rerun()
+    error_message = None
 
+    st.write("") #create space
+    st.write("") #create space
     col1, col2 = st.columns([3, 1])
     with col1:
         st.subheader("Final Summary")
@@ -144,30 +222,22 @@ def display_summary():
             disabled=st.session_state.is_summary_running,
             use_container_width=True
         ):
-            if any(st.session_state.step_results):
-                st.session_state.is_summary_running = True
-                st.session_state.summary_start_time = time.time()
-                
-                def work_process():
-                    try:
-                        summary_prompt = SUMMARY_BEGINNING_OF_PROMPT + "\n\n".join(st.session_state.step_results) + SUMMARY_END_OF_PROMPT
-                        result = prompt_model(summary_prompt)
-                        st.session_state.summary_result = result
-                    except Exception as e:
-                        logging.error(f"Error in summary generation: {str(e)}")
-                        st.session_state.summary_result = "Error occurred during summary generation."
-                    finally:
-                        st.session_state.is_summary_running = False
-                        st.session_state.summary_start_time = None
-                        st.session_state.is_summary_done = True
-                        logging.info("Summary work process completed")
-
-                thread = threading.Thread(target=work_process, daemon=True)
-                add_script_run_ctx(thread)
-                thread.start()
-                st.rerun() #required to start run_every
+            if any(st.session_state.step_results): # keep this check even if redundant to avoid re-run
+                run_summary_helper()
+                st.rerun() #required to start run_every for fragment
             else:
-                st.error("Please analyze the company first.")
-    st.text_area("", value=st.session_state.summary_result, height=200, key="final_summary")
+                error_message = "No results to analyze."
+    
+    if error_message: st.error(error_message) # used to print below column, not in column
+    st.text_area("Output:", value=st.session_state.summary_result, height=200, key="final_summary")
 
 display_summary()
+
+# invisible fragment to trigger global rerun to reset all fragments' run_every once nothing is running anymore
+@st.fragment(run_every=1.0 if (get_is_any_process_running() or get_is_analysis_running()) else None)
+def invisible_fragment_to_rerun_when_all_done():
+    #trigger rerun if any steps are marked done and nothing is running anymore
+    if get_is_anything_marked_done() and not (get_is_any_process_running() or get_is_analysis_running()):
+        set_everthing_not_done()
+        st.rerun()
+invisible_fragment_to_rerun_when_all_done()
