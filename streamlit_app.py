@@ -138,8 +138,7 @@ display_analyze_company()
 
 # Function to create display step functions
 def create_display_step_function(step_index):
-    run_every_this_step = 1.0 if st.session_state.is_step_running[step_index] else None
-    @st.fragment(run_every=run_every_this_step)
+    @st.fragment(run_every=1.0 if st.session_state.is_step_running[step_index] else None)
     def display_step():
         # global rerun is required to reset run_every when all are done
         is_any_process_running = any(st.session_state.is_step_running) or st.session_state.is_summary_running
