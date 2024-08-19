@@ -351,17 +351,24 @@ def generate_pdf():
     </html>
     """
     
-    steps_html = ''.join([f'''
+    steps_html = []
+    for i in range(len(WORKFLOW_STEPS)):
+        step_html = """
         <div class="section">
-            <h2>Step {i}: {WORKFLOW_STEPS[i]['step_name']}</h2>
-            <p>{st.session_state.step_results[i].replace('\n', '<br>')}</p>
+            <h2>Step {step_number}: {step_name}</h2>
+            <p>{step_result}</p>
         </div>
-        ''' for i in range(len(WORKFLOW_STEPS))])
+        """.format(
+            step_number=i,
+            step_name=WORKFLOW_STEPS[i]['step_name'],
+            step_result=st.session_state.step_results[i].replace('\n', '<br>')
+        )
+        steps_html.append(step_html)
     
     html_content = html_template.format(
         draft_email=st.session_state.draft_email_result.replace('\n', '<br>'),
         summary=st.session_state.summary_result.replace('\n', '<br>'),
-        steps=steps_html
+        steps=''.join(steps_html)
     )
     
     pdf_file = BytesIO()
