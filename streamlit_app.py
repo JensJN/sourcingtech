@@ -1,5 +1,5 @@
 import streamlit as st
-st.set_page_config(page_title="JN test - Company Analysis Workflow") # needs to stay here to avoid issues
+st.set_page_config(page_title="Company Research Workflow") # needs to stay here to avoid issues
 
 from typing import List, Callable
 import threading
@@ -22,7 +22,9 @@ initialize_clients(mock_clients=False) # DEBUG; remember to disable before deplo
 from diskcache import Cache
 cache = Cache('/tmp/mycache')
 
-st.title("JN test - Company Analysis Workflow")
+st.title("Company Research Workflow")
+st.header("JN test")
+st.write("")
 
 # Initialize session state
 if 'company_url' not in st.session_state:
