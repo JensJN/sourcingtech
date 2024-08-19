@@ -338,18 +338,18 @@ def generate_pdf():
         
         <div class="section">
             <h2>Draft Email</h2>
-            <p>{st.session_state.draft_email_result}</p>
+            <p>{st.session_state.draft_email_result.replace('\n', '<br>')}</p>
         </div>
         
         <div class="section">
             <h2>Final Summary</h2>
-            <p>{st.session_state.summary_result}</p>
+            <p>{st.session_state.summary_result.replace('\n', '<br>')}</p>
         </div>
         
         {''.join([f'''
         <div class="section">
             <h2>Step {i}: {WORKFLOW_STEPS[i]['step_name']}</h2>
-            <p>{st.session_state.step_results[i]}</p>
+            <p>{st.session_state.step_results[i].replace('\n', '<br>')}</p>
         </div>
         ''' for i in range(len(WORKFLOW_STEPS))])}
     </body>
