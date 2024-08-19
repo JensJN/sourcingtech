@@ -359,7 +359,7 @@ def generate_pdf():
             <p>{step_result}</p>
         </div>
         """.format(
-            step_number=i,
+            step_number=i+1,
             step_name=WORKFLOW_STEPS[i]['step_name'],
             step_result=st.session_state.step_results[i].replace('\n', '<br>')
         )
