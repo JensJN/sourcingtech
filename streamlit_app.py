@@ -311,7 +311,7 @@ def display_draft_email():
 display_draft_email()
 
 def generate_pdf():
-    html_content = f"""
+    html_content = rf"""
     <html>
     <head>
         <style>
@@ -346,7 +346,7 @@ def generate_pdf():
             <p>{st.session_state.summary_result.replace('\n', '<br>')}</p>
         </div>
         
-        {''.join([f'''
+        {''.join([rf'''
         <div class="section">
             <h2>Step {i}: {WORKFLOW_STEPS[i]['step_name']}</h2>
             <p>{st.session_state.step_results[i].replace('\n', '<br>')}</p>
