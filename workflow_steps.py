@@ -60,7 +60,7 @@ SUMMARY_END_OF_PROMPT = """\n**********\n
         Remember your task and objective.
         """
 
-REFINE_PROMPT = """Objective: you're trying to get in touch with the founder and CEO of a company.
+DRAFT_EMAIL_PROMPT = """Objective: you're trying to get in touch with the founder and CEO of a company.
         You therefore need to write an email that demonstrates your in-depth knowledge about their business and industry.
         
         Task: write an email based on the information you'll be given.
@@ -89,36 +89,3 @@ REFINE_PROMPT = """Objective: you're trying to get in touch with the founder and
 
         You've now been given the below information on the company:
         \n**********\n"""
-
-
-## Archive/unused
-UNUSED_STEPS = [
-    {
-        "step_name": "Funding History",
-        "search_query": "{company_url} funding rounds investment series total raised investors",
-        "prompt_to_analyse": "Summarize the company's funding history, including total amount raised, key investors, and details of the most recent funding round if available. Include any information on the company's current valuation or financial status if publicly available.",
-        "include_domains": ["crunchbase.com", "pitchbook.com", "dealroom.co"]
-    }
-]
-
-REFINE_PROMPT_BCK = """Based on the summary provided, please refine and enhance the content to create a more polished and professional version. Focus on the following aspects:
-1. Improve the structure and flow of the information.
-2. Ensure all key points are clearly articulated and logically connected.
-3. Highlight the most important insights about the company, its market position, and recent developments.
-4. Remove any redundant or less relevant information.
-5. Maintain a professional and objective tone throughout.
-Please provide the refined version, keeping it concise and impactful."""
-
-
-## For testing only
-TEST_ONLY = False
-
-if TEST_ONLY:
-    WORKFLOW_STEPS = [
-        {
-            "step_name": "Company Overview",
-            "search_query": "{company_url} about OR mission OR products OR services",
-            "prompt_to_analyse": "Summarize the key information about the company from its official website, including its mission, products/services, and any unique selling points.",
-            "include_domains": ["{company_url}"]
-        }
-    ]

@@ -1,13 +1,16 @@
 import streamlit as st
-st.set_page_config(page_title="JN test - Company Analysis Workflow") # needs to stay here to avoid issues
+st.set_page_config(page_title="Company Research Workflow") # needs to stay here to avoid issues
 
 from typing import List, Callable
 import threading
 import time
 from streamlit.runtime.scriptrunner import add_script_run_ctx
-from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_END_OF_PROMPT, REFINE_PROMPT
+from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_END_OF_PROMPT, DRAFT_EMAIL_PROMPT
 from env_config import setup_environment, setup_logging
 from utils import prompt_model, run_step, initialize_clients
+import base64
+from weasyprint import HTML
+from io import BytesIO
 
 # Setup environment and logging, initialize clients, setup cache for slow/expensive functions
 DEBUG_MODE = False # remember to set DEBUG_MODE = False before deploying
@@ -19,7 +22,9 @@ initialize_clients(mock_clients=False) # DEBUG; remember to disable before deplo
 from diskcache import Cache
 cache = Cache('/tmp/mycache')
 
-st.title("JN test - Company Analysis Workflow")
+st.title("Company Research Workflow")
+st.header("JN test")
+st.write("")
 
 # Initialize session state
 if 'company_url' not in st.session_state:
@@ -134,7 +139,7 @@ def run_draft_email_helper():
     if st.session_state.summary_result:
         st.session_state.is_draft_email_running = True
         st.session_state.draft_email_start_time = time.time()
-        draft_email_prompt = REFINE_PROMPT + "\n ***** \n" + st.session_state.summary_result
+        draft_email_prompt = DRAFT_EMAIL_PROMPT + "\n ***** \n" + st.session_state.summary_result
         def work_process():
             try:
                 result = cached_prompt_model(draft_email_prompt)
@@ -307,7 +312,87 @@ def display_draft_email():
 
 display_draft_email()
 
-# invisible fragment to trigger global rerun to reset all fragments' run_every once nothing is running anymore
+def generate_pdf():
+    html_template = """
+    <html>
+    <head>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                color: black;
+                font-size: 12px;
+            }}
+            h1, h2 {{
+                color: #00008B;  /* Dark Blue */
+            }}
+            h1 {{
+                font-size: 18px;
+                margin-bottom: 10px;
+            }}
+            h2 {{
+                font-size: 16px;
+                margin-bottom: 5px;
+            }}
+            .section {{
+                margin-bottom: 15px;
+            }}
+        </style>
+    </head>
+    <body>
+        <h1>Company Analysis Report</h1>
+        
+        <div class="section">
+            <h2>Draft Email</h2>
+            <p>{draft_email}</p>
+        </div>
+        
+        <div class="section">
+            <h2>Final Summary</h2>
+            <p>{summary}</p>
+        </div>
+        
+        {steps}
+    </body>
+    </html>
+    """
+    
+    steps_html = []
+    for i in range(len(WORKFLOW_STEPS)):
+        step_html = """
+        <div class="section">
+            <h2>Step {step_number}: {step_name}</h2>
+            <p>{step_result}</p>
+        </div>
+        """.format(
+            step_number=i+1,
+            step_name=WORKFLOW_STEPS[i]['step_name'],
+            step_result=st.session_state.step_results[i].replace('\n', '<br>')
+        )
+        steps_html.append(step_html)
+    
+    html_content = html_template.format(
+        draft_email=st.session_state.draft_email_result.replace('\n', '<br>'),
+        summary=st.session_state.summary_result.replace('\n', '<br>'),
+        steps=''.join(steps_html)
+    )
+    
+    pdf_file = BytesIO()
+    HTML(string=html_content).write_pdf(pdf_file)
+    pdf_file.seek(0)
+    return pdf_file
+
+# Download PDF button
+st.write("")
+if st.download_button(
+    label="Download as PDF",
+    data=generate_pdf(),
+    file_name="company_analysis.pdf",
+    mime="application/pdf",
+    use_container_width=True
+):
+    st.success("PDF generated successfully!")
+
+# invisible fragment to trigger global rerun to reset all fragments' run_every once nothing is running anymore; should always stay at end of file
 @st.fragment(run_every=1.0 if (get_is_any_process_running() or get_is_analysis_running()) else None)
 def invisible_fragment_to_rerun_when_all_done():
     #trigger rerun if any steps are marked done and nothing is running anymore
