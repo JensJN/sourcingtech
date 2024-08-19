@@ -5,7 +5,7 @@ from typing import List, Callable
 import threading
 import time
 from streamlit.runtime.scriptrunner import add_script_run_ctx
-from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_END_OF_PROMPT, REFINE_PROMPT
+from workflow_steps import WORKFLOW_STEPS, SUMMARY_BEGINNING_OF_PROMPT, SUMMARY_END_OF_PROMPT, DRAFT_EMAIL_PROMPT
 from env_config import setup_environment, setup_logging
 from utils import prompt_model, run_step, initialize_clients
 import base64
@@ -139,7 +139,7 @@ def run_draft_email_helper():
     if st.session_state.summary_result:
         st.session_state.is_draft_email_running = True
         st.session_state.draft_email_start_time = time.time()
-        draft_email_prompt = REFINE_PROMPT + "\n ***** \n" + st.session_state.summary_result
+        draft_email_prompt = DRAFT_EMAIL_PROMPT + "\n ***** \n" + st.session_state.summary_result
         def work_process():
             try:
                 result = cached_prompt_model(draft_email_prompt)

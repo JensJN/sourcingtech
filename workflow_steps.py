@@ -60,7 +60,7 @@ SUMMARY_END_OF_PROMPT = """\n**********\n
         Remember your task and objective.
         """
 
-REFINE_PROMPT = """Objective: you're trying to get in touch with the founder and CEO of a company.
+DRAFT_EMAIL_PROMPT = """Objective: you're trying to get in touch with the founder and CEO of a company.
         You therefore need to write an email that demonstrates your in-depth knowledge about their business and industry.
         
         Task: write an email based on the information you'll be given.
