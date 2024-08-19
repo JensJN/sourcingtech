@@ -320,6 +320,9 @@ def generate_pdf():
                 color: black;
                 font-size: 12px;
             }}
+            h1, h2 {{
+                color: #00008B;  /* Dark Blue */
+            }}
             h1 {{
                 font-size: 18px;
                 margin-bottom: 10px;
